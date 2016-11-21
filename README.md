@@ -163,5 +163,5 @@ preconfig.py is distributed under GPL3.0 Licence (see LICENCE.md)
 # Feedback
 
 Your feedback is very much appreciated, please send it to:
-francois.nedelec@embl.de
+francois.nedelec(xxx)embl.de
 
