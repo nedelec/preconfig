@@ -1,0 +1,168 @@
+<h1>PRECONFIG, a versatile configuration file generator</h1>
+
+<h1>Overview</h1>
+
+<p>preconfig.py is a python program used to vary parameter values in files.</p>
+
+<h1>Requirements</h1>
+
+<p>A template file, and the <a href="https://www.python.org">python</a> interpreter</p>
+
+<h1>Syntax</h1>
+
+<pre><code>preconfig.py [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
+</code></pre>
+
+<h1>Description</h1>
+
+<p>preconfig.py reads the template file from top to bottom, identifying snippets 
+  of code which are surrounded by double square brackets. It then executes this <br />
+  code using the python interpreter, and will fork recursively whenever multiple 
+  values are specified. Values are eventually converted to their string 
+  representation, and substituted in place of the code snippet. In this way,
+  preconfig will generate all the possible combinations following the order in 
+  which these combinations were specified in the file. Importantly, any ac-
+  -companying text in the template file is copied verbatim to the output file, 
+  such that any syntax present in the configuration file can be maintained 
+  during the process.</p>
+
+<h1>Usage</h1>
+
+<p>At least one template file should be specified, and other arguments are optional.
+If several template files are specified, they will be processed sequentially.
+The names of the produced files are built from the name of the template
+by removing any second extension, and inserting an integer of constant-width.</p>
+
+<p>For examples:</p>
+
+<ul>
+<li>config.cym.tpl --> config0000.cym, config0001.cym, config0002.cym, etc.</li>
+<li>config.txt.tpl --> config0000.txt, config0001.txt, config0002.txt, etc.</li>
+<li>model.xml.tpl --> model0000.xml, model0001.xml, model0002.xml, etc.</li>
+</ul>
+
+<p>The width of the variable part (default=4) can be specified as an option (eg "-3").</p>
+
+<h2>OPTIONS</h2>
+
+<ul>
+<li><p>if a positive integer REPEAT is specified, each template file will be 
+processed REPEAT times, for example: <code>preconfig 3 config.cym.tpl</code></p></li>
+<li><p>if the name of an existing directory is specified, files will be created 
+in this directory, for example: <code>preconfig config_dir config.cym.tpl</code></p></li>
+<li><p>DEFINITIONS can be specified on the command line as 'name=value' or 
+'name=sequence', with no space around the '='. They are added to the 
+dictionary used to evaluate the code snippets found inside the template file,
+for example: <code>preconfig n_molecules=100 config.cym.tpl</code></p></li>
+<li><p>if a negative integer is specified, this will affect the naming of the files,
+for example: <code>preconfig -3 config.cym.tpl</code></p></li>
+<li><p>if a '-' is specified, this will suppress all accessory output</p></li>
+<li><p>if a '+' is specified, more detailed information on the parsing is provided.</p></li>
+<li><p>if 'log' is specified, a file 'log.csv' will be created containing parameter
+values for each file made.</p></li>
+<li><p>if 'help' is specified, this documentation will be printed.</p></li>
+</ul>
+
+<h2>CODE SNIPPETS</h2>
+
+<p>The variations to be applied are specified within double squared brackets
+in the template file. Any plain python code can used, including functions from
+the <a href="https://docs.python.org/library/random.html">Random Module</a>. 
+It is possible to use multiple bracketed expressions in the same file, and 
+to define variables in the python environment. An integer 'n', starting at 
+zero and corresponding to the file being generated is automatically defined.</p>
+
+<h3>Example 1</h3>
+
+<p>Generate all combinations with multiple values for 2 parameters</p>
+
+<pre><code>rate = [[ [1, 10, 100] ]]
+speed = [[ [-1, 0, 1] ]]
+</code></pre>
+
+<p>Command: <code>preconfig.py config.cym.tpl</code></p>
+
+<h3>Example 2</h3>
+
+<p>Scan multiple parameters values randomly</p>
+
+<pre><code>diffusion_rate = [[ random.uniform(0,1) ]]
+reaction_rate = [[ random.choice([1, 10, 100]) ]]
+abundance = [[ random.randint(0, 1000) ]]
+</code></pre>
+
+<p>Command: <code>preconfig.py 100 config.cym.tpl</code></p>
+
+<h3>Example 3</h3>
+
+<p>Regularly scan 2 parameters with 10 values each,
+one according to a linear scale, and the other with a geometric scale</p>
+
+<pre><code>[[ x = range(10) ]]
+[[ y = range(10) ]]
+reaction_rate = [[ 1 + 0.5 * x ]]
+diffusion_rate = [[ 1.0 / 2**y ]]
+</code></pre>
+
+<p>Command: <code>preconfig.py config.cym.tpl</code></p>
+
+<h3>Example 4</h3>
+
+<p>Randomize two parameters while keeping their ratio constant.</p>
+
+<pre><code>[[ x = random.uniform(0,1) ]] 
+binding_rate = [[ 10.0 * x ]]
+unbinding_rate = [[ x ]]
+</code></pre>
+
+<p>Command: <code>preconfig.py 100 config.cym.tpl</code></p>
+
+<h3>Example 5</h3>
+
+<p>Generate unconventional distributions with conditional expressions</p>
+
+<pre><code>[[ x = random.uniform(1,10) ]]
+diffusion_rate = [[ x ]]
+reaction_rate = [[ 5-x if x &lt; 5 else x-5 ]]
+</code></pre>
+
+<p>Command: <code>preconfig.py 100 config.cym.tpl</code></p>
+
+<h3>Example 6</h3>
+
+<p>Randomize a value, and print this value as a comment in the file.</p>
+
+<pre><code>[[ x = random.uniform(0,1) ]]
+[[ "%set x= " + str(x) ]]
+</code></pre>
+
+<p>Command: <code>preconfig.py 100 config.cym.tpl</code></p>
+
+<h1>Testing</h1>
+
+<p>We provide three type of template files to test <code>preconfig.py</code>:</p>
+
+<ul>
+<li><a href="www.cytosim.org">Cytosim</a> configuration files: <code>config?.cym.tpl</code></li>
+<li><a href="www.smoldyn.org">Smoldyn</a> configuration file: <code>smoldyn.txt.tpl</code></li>
+<li><a href="www.biomodels.org">BioModel</a> XML configuration file: <code>BioModel.xml.tpl</code></li>
+</ul>
+
+<p>To test them, please enter the following commands, one by one:</p>
+
+<pre><code>preconfig.py configA.cym.tpl
+preconfig.py configB.cym.tpl 16
+preconfig.py configC.cym.tpl
+preconfig.py smoldyn.txt.tpl
+preconfig.py BioModel.xml.tpl
+</code></pre>
+
+<h1>Credits &amp; Licence</h1>
+
+<p>Francois J. Nedelec, 2010--2016. <br />
+preconfig.py is distributed under GPL3.0 Licence (see LICENCE.md)</p>
+
+<h1>Feedback</h1>
+
+<p>Your feedback is very much appreciated, please send it to:
+francois.nedelec@embl.de</p>
