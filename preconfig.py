@@ -3,7 +3,7 @@
 # PRECONFIG, a versatile configuration file generator
 #
 # Copyright Francois J. Nedelec, EMBL 2010--2016
-# Last modified on 20.11.2016
+# Last modified on 1.12.2016
 
 """
 # Synopsis
@@ -45,7 +45,8 @@
 # OPTIONS
    
    - if a positive integer REPEAT is specified, each template file will be
-   processed REPEAT times, for example: `preconfig 3 config.cym.tpl`
+   processed REPEAT times, for example: `preconfig 3 config.cym.tpl` will parse
+   the template three times and generate three times more files.
    
    - if the name of an existing directory is specified, files will be created
    in this directory, for example: `preconfig config_dir config.cym.tpl`
@@ -56,14 +57,14 @@
    for example: `preconfig n_molecules=100 config.cym.tpl`
    
    - if a negative integer is specified, this will affect the naming of the files,
-   for example: `preconfig -3 config.cym.tpl`
+   for example: `preconfig -3 config.cym.tpl` will create 'config001.cym', etc.
    
    - if a '-' is specified, this will suppress all accessory output
    
    - if a '+' is specified, more detailed information on the parsing is provided.
    
-   - if 'log' is specified, a file 'log.csv' will be created containing parameter
-   values for each file made.
+   - if 'log' is specified, a file 'log.csv' will be created containing one line
+   for each file made, with a list of substitutions operated for this file.
    
    - if 'help' is specified, this documentation will be printed.
    
@@ -118,7 +119,7 @@
    
 ##Example 5
    
-   Generate unconventional distributions with conditional expressions
+   Generate piecewise linear distributions with conditional expressions
    
     [[ x = random.uniform(1,10) ]]
     diffusion_rate = [[ x ]]
@@ -129,6 +130,7 @@
 ##Example 6
    
    Randomize a value, and print this value as a comment in the file.
+   The second line below constructs a string, from the value of 'x'.
    
     [[ x = random.uniform(0,1) ]]
     [[ "%set x= " + str(x) ]]
