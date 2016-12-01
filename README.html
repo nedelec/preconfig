@@ -4,15 +4,6 @@
 
 <p>preconfig.py is a python program used to vary parameter values in files.</p>
 
-<h1>Requirements</h1>
-
-<p>A template file, and the <a href="https://www.python.org">python</a> interpreter</p>
-
-<h1>Syntax</h1>
-
-<pre><code>preconfig.py [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
-</code></pre>
-
 <h1>Description</h1>
 
 <p>preconfig.py reads the template file from top to bottom, identifying snippets 
@@ -26,12 +17,10 @@
   such that any syntax present in the configuration file can be maintained 
   during the process.</p>
 
-<h1>Usage</h1>
-
-<p>At least one template file should be specified, and other arguments are optional.
-If several template files are specified, they will be processed sequentially.
-The names of the produced files are built from the name of the template
-by removing any second extension, and inserting an integer of constant-width.</p>
+<p>One (or many) template file should be specified, and other arguments are optional.
+  If several template files are specified, they will be processed sequentially.
+  The names of the produced files are built from the name of the template
+  by removing any second extension, and inserting an integer of constant-width.</p>
 
 <p>For examples:</p>
 
@@ -43,7 +32,11 @@ by removing any second extension, and inserting an integer of constant-width.</p
 
 <p>The width of the variable part (default=4) can be specified as an option (eg "-3").</p>
 
-<h2>OPTIONS</h2>
+<h1>Syntax</h1>
+
+<p>preconfig.py [OPTIONS] TEMPLATE<em>FILE [ADDITIONAL</em>TEMPLATE_FILES]</p>
+
+<h2>Options</h2>
 
 <ul>
 <li><p>if a positive integer REPEAT is specified, each template file will be 
@@ -55,15 +48,15 @@ in this directory, for example: <code>preconfig config_dir config.cym.tpl</code>
 dictionary used to evaluate the code snippets found inside the template file,
 for example: <code>preconfig n_molecules=100 config.cym.tpl</code></p></li>
 <li><p>if a negative integer is specified, this will affect the naming of the files,
-for example: <code>preconfig -3 config.cym.tpl</code></p></li>
-<li><p>if a '-' is specified, this will suppress all accessory output</p></li>
-<li><p>if a '+' is specified, more detailed information on the parsing is provided.</p></li>
+for example: <code>preconfig -3 config.cym.tpl</code> will create 'config001.cym', etc.</p></li>
+<li><p>if '-' is specified, all accessory output is suppressed</p></li>
+<li><p>if '+' is specified, more detailed information on the parsing is provided.</p></li>
 <li><p>if 'log' is specified, a file 'log.csv' will be created containing parameter
 values for each file made.</p></li>
 <li><p>if 'help' is specified, this documentation will be printed.</p></li>
 </ul>
 
-<h2>CODE SNIPPETS</h2>
+<h2>Code Snippets</h2>
 
 <p>The variations to be applied are specified within double squared brackets
 in the template file. Any plain python code can used, including functions from
@@ -130,13 +123,30 @@ reaction_rate = [[ 5-x if x &lt; 5 else x-5 ]]
 
 <h3>Example 6</h3>
 
-<p>Randomize a value, and print this value as a comment in the file.</p>
+<p>Randomize a value, and print this value as a comment in the file.
+The second line below constructs a string, from the value of 'x'.</p>
 
 <pre><code>[[ x = random.uniform(0,1) ]]
 [[ "%set x= " + str(x) ]]
 </code></pre>
 
 <p>Command: <code>preconfig.py 100 config.cym.tpl</code></p>
+
+<h1>Tutorial</h1>
+
+<p>To use preconfig, follow this steps:</p>
+
+<ul>
+<li>copy a configuration file and add '.tpl' to the name (<code>cp config.cym config.cym.tpl</code>)</li>
+<li>edit the template file you created, to add some double bracketed snippets,
+following the examples above.</li>
+<li>run preconfig (<code>preconfig.py config.cym.tpl</code>)</li>
+<li>invoke your favorite simulation tool with each file (e.g. with the UNIX command <a href="https://en.wikipedia.org/wiki/Xargs">xargs</a>)</li>
+</ul>
+
+<h1>Requirements</h1>
+
+<p>A template file, and the <a href="https://www.python.org">python</a> interpreter</p>
 
 <h1>Testing</h1>
 
@@ -165,4 +175,4 @@ preconfig.py is distributed under GPL3.0 Licence (see LICENCE.md)</p>
 <h1>Feedback</h1>
 
 <p>Your feedback is very much appreciated, please send it to:
-francois.nedelec@embl.de</p>
+francois.nedelec(xxx)embl.de</p>

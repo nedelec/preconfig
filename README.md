@@ -4,14 +4,6 @@
 
 preconfig.py is a python program used to vary parameter values in files.
 
-# Requirements
-
-A template file, and the [python](https://www.python.org) interpreter
-
-# Syntax
-
-    preconfig.py [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
-
 # Description
 
   preconfig.py reads the template file from top to bottom, identifying snippets 
@@ -25,12 +17,10 @@ A template file, and the [python](https://www.python.org) interpreter
   such that any syntax present in the configuration file can be maintained 
   during the process.
 
-# Usage
-
-At least one template file should be specified, and other arguments are optional.
-If several template files are specified, they will be processed sequentially.
-The names of the produced files are built from the name of the template
-by removing any second extension, and inserting an integer of constant-width.
+  One (or many) template file should be specified, and other arguments are optional.
+  If several template files are specified, they will be processed sequentially.
+  The names of the produced files are built from the name of the template
+  by removing any second extension, and inserting an integer of constant-width.
 
 For examples:
 
@@ -40,7 +30,11 @@ For examples:
 
 The width of the variable part (default=4) can be specified as an option (eg "-3").
 
-##OPTIONS
+# Syntax
+
+preconfig.py [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
+
+##Options
 
 - if a positive integer REPEAT is specified, each template file will be 
   processed REPEAT times, for example: `preconfig 3 config.cym.tpl`
@@ -54,18 +48,18 @@ The width of the variable part (default=4) can be specified as an option (eg "-3
   for example: `preconfig n_molecules=100 config.cym.tpl`
 
 - if a negative integer is specified, this will affect the naming of the files,
-  for example: `preconfig -3 config.cym.tpl`
+  for example: `preconfig -3 config.cym.tpl` will create 'config001.cym', etc.
 
-- if a '-' is specified, this will suppress all accessory output
+- if '-' is specified, all accessory output is suppressed
 
-- if a '+' is specified, more detailed information on the parsing is provided.
+- if '+' is specified, more detailed information on the parsing is provided.
 
 - if 'log' is specified, a file 'log.csv' will be created containing parameter
   values for each file made.
 
 - if 'help' is specified, this documentation will be printed.
 
-##CODE SNIPPETS
+##Code Snippets
 
 The variations to be applied are specified within double squared brackets
 in the template file. Any plain python code can used, including functions from
@@ -132,12 +126,26 @@ Command: `preconfig.py 100 config.cym.tpl`
 ###Example 6
 
 Randomize a value, and print this value as a comment in the file.
+The second line below constructs a string, from the value of 'x'.
 
     [[ x = random.uniform(0,1) ]]
     [[ "%set x= " + str(x) ]]
 
 Command: `preconfig.py 100 config.cym.tpl`
 
+# Tutorial
+
+To use preconfig, follow this steps:
+
+- copy a configuration file and add '.tpl' to the name (`cp config.cym config.cym.tpl`)
+- edit the template file you created, to add some double bracketed snippets,
+  following the examples above.
+- run preconfig (`preconfig.py config.cym.tpl`)
+- invoke your favorite simulation tool with each file (e.g. with the UNIX command [xargs](https://en.wikipedia.org/wiki/Xargs))
+
+# Requirements
+
+A template file, and the [python](https://www.python.org) interpreter
 
 # Testing
 

@@ -6,15 +6,11 @@
 # Last modified on 1.12.2016
 
 """
-# Synopsis
+# SYNOPSIS
 
    Generates files from a template by evaluating doubly-bracketed python code.
-
-# Syntax:
-
-   preconfig.py [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
    
-# Description
+# DESCRIPTION
    
    preconfig.py reads the template file from top to bottom, identifying snippets
    of code which are surrounded by double square brackets. It then executes this
@@ -26,8 +22,6 @@
    -companying text in the template file is copied verbatim to the output file,
    such that any syntax present in the configuration file can be maintained
    during the process.
-   
-# Usage
 
    At least one template file should be specified, and other arguments are optional.
    If several template files are specified, they will be processed sequentially.
@@ -40,8 +34,12 @@
    - config.txt.tpl --> config0000.txt, config0001.txt, config0002.txt, etc.
    - model.xml.tpl --> model0000.xml, model0001.xml, model0002.xml, etc.
    
-   The width of the variable part (default=4) can be specified as an option (eg "-3").
+   The width of the variable part (default=4) can be optinally specified (eg "-3").
    
+# SYNTAX
+   
+   preconfig.py [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
+
 # OPTIONS
    
    - if a positive integer REPEAT is specified, each template file will be
