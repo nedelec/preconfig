@@ -2,19 +2,19 @@
 #
 # PRECONFIG, a versatile configuration file generator
 #
-# Copyright Francois J. Nedelec, EMBL 2010--2016
-# Last modified on 1.12.2016
+# Copyright Francois J. Nedelec, EMBL 2010--2017
+# This is PRECONFIG version 1.0, last modified on 10.02.2017
 
 """
 # SYNOPSIS
 
-   Generates files from a template by evaluating doubly-bracketed python code.
+   Preconfig generates files from a template by evaluating doubly-bracketed Python code.
    
 # DESCRIPTION
    
-   preconfig.py reads the template file from top to bottom, identifying snippets
+   Preconfig reads the template file from top to bottom, identifying snippets
    of code which are surrounded by double square brackets. It then executes this
-   code using the python interpreter, forking recursively whenever multiple
+   code using the python interpreter, proceeding recursively whenever multiple
    values are specified. Values are eventually converted to their string
    representation, and substituted in place of the code snippet. In this way,
    preconfig will generate all the possible combinations following the order in
@@ -26,19 +26,20 @@
    At least one template file should be specified, and other arguments are optional.
    If several template files are specified, they will be processed sequentially.
    The names of the produced files are built from the name of the template
-   by removing any second extension, and inserting an integer of constant-width.
+   by removing any second extension, and inserting an integer of constant width.
    
-   For examples:
+   Examples:
    
    - config.cym.tpl --> config0000.cym, config0001.cym, config0002.cym, etc.
    - config.txt.tpl --> config0000.txt, config0001.txt, config0002.txt, etc.
    - model.xml.tpl --> model0000.xml, model0001.xml, model0002.xml, etc.
    
-   The width of the variable part (default=4) can be optinally specified (eg "-3").
+   The width of the variable part (default=4) can be changed on the command line.
+   For instance, to specify a width of 2, simply invoke "preconfig -2 ...".
    
 # SYNTAX
    
-   preconfig.py [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
+   preconfig [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
 
 # OPTIONS
    
@@ -46,25 +47,26 @@
    processed REPEAT times, for example: `preconfig 3 config.cym.tpl` will parse
    the template three times and generate three times more files.
    
-   - if the name of an existing directory is specified, files will be created
-   in this directory, for example: `preconfig config_dir config.cym.tpl`
+   - if the path to an existing directory is specified, files will be created
+   in this directory, for example: `preconfig dir config.cym.tpl`
    
    - DEFINITIONS can be specified on the command line as 'name=value' or 
    'name=sequence', with no space around the '='. They are added to the 
    dictionary used to evaluate the code snippets found inside the template file,
    for example: `preconfig n_molecules=100 config.cym.tpl`
    
-   - if a negative integer is specified, this will affect the naming of the files,
-   for example: `preconfig -3 config.cym.tpl` will create 'config001.cym', etc.
+   - if a negative integer is specified, this will set the width of the integer
+   that is used to build the file namess.
+   For example: `preconfig -2 config.cym.tpl` will create 'config00.cym', etc.
    
-   - if a '-' is specified, this will suppress all accessory output
+   - if a '-' is specified, all accessory output is suppressed
    
    - if a '+' is specified, more detailed information on the parsing is provided.
    
    - if 'log' is specified, a file 'log.csv' will be created containing one line
    for each file made, with a list of substitutions operated for this file.
    
-   - if 'help' is specified, this documentation will be printed.
+   - if '--help' is specified, this documentation will be printed.
    
 # CODE SNIPPETS
    
@@ -74,16 +76,17 @@
    to define variables in the python environment. An integer 'n', starting at
    zero and corresponding to the file being generated is automatically defined.
    
-##Example 1
+## Example 1
    
    Generate all combinations with multiple values for 2 parameters
    
     rate = [[ [1, 10, 100] ]]
     speed = [[ [-1, 0, 1] ]]
    
-   Command: `preconfig.py config.cym.tpl`
+   Command: `preconfig TEMPLATE_FILE` with the appropriate file name.
+   In this case, Preconfig will generate 9 files.
    
-##Example 2
+## Example 2
 
    Scan multiple parameters values randomly
    
@@ -91,9 +94,10 @@
     reaction_rate = [[ random.choice([1, 10, 100]) ]]
     abundance = [[ random.randint(0, 1000) ]]
    
-   Command: `preconfig.py 100 config.cym.tpl`
+   Command: `preconfig 100 TEMPLATE_FILE`
+   In this case, Preconfig is instructed to generate 100 files.
    
-##Example 3
+## Example 3
    
    Regularly scan 2 parameters with 10 values each,
    one according to a linear scale, and the other with a geometric scale
@@ -103,9 +107,10 @@
     reaction_rate = [[ 1 + 0.5 * x ]]
     diffusion_rate = [[ 1.0 / 2**y ]]
    
-   Command: `preconfig.py config.cym.tpl`
+   Command: `preconfig TEMPLATE_FILE`
+   In this case, Preconfig will generate 100 files.
    
-##Example 4
+## Example 4
    
    Randomize two parameters while keeping their ratio constant.
    
@@ -113,9 +118,10 @@
     binding_rate = [[ 10.0 * x ]]
     unbinding_rate = [[ x ]]
    
-   Command: `preconfig.py 100 config.cym.tpl`
+   Command: `preconfig 100 TEMPLATE_FILE`
+   In this case, Preconfig is instructed to generate 100 files.
    
-##Example 5
+## Example 5
    
    Generate piecewise linear distributions with conditional expressions
    
@@ -123,9 +129,10 @@
     diffusion_rate = [[ x ]]
     reaction_rate = [[ 5-x if x < 5 else x-5 ]]
    
-   Command: `preconfig.py 100 config.cym.tpl`
+   Command: `preconfig 100 TEMPLATE_FILE`
+   In this case, Preconfig is instructed to generate 100 files.
    
-##Example 6
+## Example 6
    
    Randomize a value, and print this value as a comment in the file.
    The second line below constructs a string, from the value of 'x'.
@@ -133,9 +140,18 @@
     [[ x = random.uniform(0,1) ]]
     [[ "%set x= " + str(x) ]]
    
-   Command: `preconfig.py 100 config.cym.tpl`
+   Command: `preconfig 100 TEMPLATE_FILE`
+   In this case, Preconfig is instructed to generate 100 files.
 
-Francois J. Nedelec, 2010--2016
+## Acknowledgments:
+
+We wish to thank the members of the Nedelec group, and all users of 
+Cytosim for their feedback which has contributed greatly to this development.
+We thanks Shaun Jackman and Steven Andrews for valuable feedback!
+
+Copyright Francois J. Nedelec, 2010--2017
+This is Free Software with absolutely no WARANTY.
+Preconfig is distributed under GPL3.0 Licence (see LICENCE)
 """
 
 
@@ -170,18 +186,18 @@ nb_digits = 4
 # index of file being generated
 file_index = 0
 
-#list of files generated
+# list of files generated
 files_made = []
 
-#current file in process
+# current file in process
 template_name = ''
 
 #-------------------------------------------------------------------------------
 
 def set_name_motif(name):
     """
-        Extract the root and the extension of the file
-        """
+    Extract the root and the extension of the file
+    """
     global file_motif, nb_digit, target_dir
     file = os.path.basename(name)
     [main, ext] = os.path.splitext(file)
@@ -194,8 +210,8 @@ def set_name_motif(name):
 
 def next_file_name():
     """
-        Generate the name of the next output file
-        """
+    Generate the name of the next output file
+    """
     global file_index, file_motif
     n = file_motif % file_index
     file_index += 1
@@ -204,8 +220,8 @@ def next_file_name():
 
 def make_file(text, values):
     """
-        Create a file with the specified text
-        """
+    Create a file with the specified text
+    """
     global files_made, file_index
     fname = next_file_name()
     file = open(fname, 'w')
@@ -251,7 +267,7 @@ def pop_sequence(dic):
 def try_assignment(cmd):
     """
         Try to evaluate `cmd` as a variable assignent,
-        and if that succeeds, expand dictionary`values`
+        and if that succeeds, expand dictionary `values`
     """
     [k, e, v] = cmd.partition('=')
     if k and v and e=='=':
@@ -372,8 +388,8 @@ def process(ifile, values, text):
 
 def expand_values(ifile, values, text):
     """
-        Call self recursively to remove all entries of the dictionary
-        'values' that are associated with multiple keys
+        Call self recursively to remove all entries of the 
+        dictionary 'values' that are associated with multiple keys
     """
     (key, vals) = pop_sequence(values)
     if key:
@@ -456,8 +472,12 @@ def main(args):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2 or sys.argv[1]=='help':
+    if len(sys.argv) < 2:
+        print("You must specify a template file (for instructions, invoke with option '--help')")
+    elif sys.argv[1]=='help' or sys.argv[1]=='--help':
         print(__doc__)
+    elif sys.argv[1]=='--version':
+        print("This is PRECONFIG version 1.0 (10.02.2017)")
     else:
         main(sys.argv[1:])
 
