@@ -2,25 +2,25 @@
 
 # Overview
 
-preconfig.py is a python program used to vary parameter values in files.
+  Preconfig is a python program used to vary parameter values in files.
 
 # Description
 
-  preconfig.py reads the template file from top to bottom, identifying snippets 
-  of code which are surrounded by double square brackets. It then executes this  
-  code using the python interpreter, and will fork recursively whenever multiple 
-  values are specified. Values are eventually converted to their string 
-  representation, and substituted in place of the code snippet. In this way,
-  preconfig will generate all the possible combinations following the order in 
-  which these combinations were specified in the file. Importantly, any ac-
-  -companying text in the template file is copied verbatim to the output file, 
-  such that any syntax present in the configuration file can be maintained 
-  during the process.
+Preconfig reads the template file from top to bottom, identifying snippets
+of code which are surrounded by double square brackets. It then executes this
+code using the python interpreter, proceeding recursively whenever multiple
+values are specified. Values are eventually converted to their string
+representation, and substituted in place of the code snippet. In this way,
+preconfig will generate all the possible combinations following the order in
+which these combinations were specified in the file. Importantly, any ac-
+-companying text in the template file is copied verbatim to the output file,
+such that any syntax present in the configuration file can be maintained
+during the process.
 
-  One (or many) template file should be specified, and other arguments are optional.
-  If several template files are specified, they will be processed sequentially.
-  The names of the produced files are built from the name of the template
-  by removing any second extension, and inserting an integer of constant-width.
+At least one template file should be specified, and other arguments are optional.
+If several template files are specified, they will be processed sequentially.
+The names of the produced files are built from the name of the template
+by removing any second extension, and inserting an integer of constant width.
 
 For examples:
 
@@ -28,44 +28,45 @@ For examples:
 - config.txt.tpl --> config0000.txt, config0001.txt, config0002.txt, etc.
 - model.xml.tpl --> model0000.xml, model0001.xml, model0002.xml, etc.
 
-The width of the variable part (default=4) can be specified as an option (eg "-3").
+The width of the variable part (default=4) can be changed on the command line.
+For example, to specify a width of 2, simply add "-2".
 
 # Syntax
 
-preconfig.py [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
+preconfig [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
 
 ##Options
 
-- if a positive integer REPEAT is specified, each template file will be 
-  processed REPEAT times, for example: `preconfig 3 config.cym.tpl`
+- if a positive integer REPEAT is specified, each template file will be
+processed REPEAT times, for example: `preconfig 3 config.cym.tpl` will parse
+the template three times and generate three times more files.
 
-- if the name of an existing directory is specified, files will be created 
-  in this directory, for example: `preconfig config_dir config.cym.tpl`
+- if the name of an existing directory is specified, files will be created
+in this directory, for example: `preconfig config_dir config.cym.tpl`
 
 - DEFINITIONS can be specified on the command line as 'name=value' or 
-  'name=sequence', with no space around the '='. They are added to the 
-  dictionary used to evaluate the code snippets found inside the template file,
-  for example: `preconfig n_molecules=100 config.cym.tpl`
+'name=sequence', with no space around the '='. They are added to the 
+dictionary used to evaluate the code snippets found inside the template file,
+for example: `preconfig n_molecules=100 config.cym.tpl`
 
 - if a negative integer is specified, this will affect the naming of the files,
-  for example: `preconfig -3 config.cym.tpl` will create 'config001.cym', etc.
+for example: `preconfig -3 config.cym.tpl` will create 'config001.cym', etc.
 
-- if '-' is specified, all accessory output is suppressed
+- if a '-' is specified, this will suppress all accessory output
 
-- if '+' is specified, more detailed information on the parsing is provided.
+- if a '+' is specified, more detailed information on the parsing is provided.
 
-- if 'log' is specified, a file 'log.csv' will be created containing parameter
-  values for each file made.
+- if 'log' is specified, a file 'log.csv' will be created containing one line
+for each file made, with a list of substitutions operated for this file.
 
 - if 'help' is specified, this documentation will be printed.
 
 ##Code Snippets
 
-The variations to be applied are specified within double squared brackets
-in the template file. Any plain python code can used, including functions from
-the [Random Module](https://docs.python.org/library/random.html). 
-It is possible to use multiple bracketed expressions in the same file, and 
-to define variables in the python environment. An integer 'n', starting at 
+Any plain python code can be embedded in the file, and functions from the
+[Random Module](https://docs.python.org/library/random.html) can be used.
+It is possible to use multiple bracketed expressions in the same file, and
+to define variables in the python environment. An integer 'n', starting at
 zero and corresponding to the file being generated is automatically defined.
 
 
@@ -76,8 +77,11 @@ Generate all combinations with multiple values for 2 parameters
     rate = [[ [1, 10, 100] ]]
     speed = [[ [-1, 0, 1] ]]
 
-Command: `preconfig.py config.cym.tpl`
+To generate the files, issue this command in the terminal:
 
+`> preconfig config.cym.tpl`
+
+In this case, Preconfig will generate 9 files.
 
 ###Example 2
 Scan multiple parameters values randomly
@@ -86,8 +90,9 @@ Scan multiple parameters values randomly
     reaction_rate = [[ random.choice([1, 10, 100]) ]]
     abundance = [[ random.randint(0, 1000) ]]
 
-Command: `preconfig.py 100 config.cym.tpl`
+`> preconfig 100 config.cym.tpl`
 
+In this case, Preconfig is instructed to generate 100 files.
 
 ###Example 3
 
@@ -99,7 +104,9 @@ one according to a linear scale, and the other with a geometric scale
     reaction_rate = [[ 1 + 0.5 * x ]]
     diffusion_rate = [[ 1.0 / 2**y ]]
 
-Command: `preconfig.py config.cym.tpl`
+`> preconfig config.cym.tpl`
+
+In this case, Preconfig will generate 100 files.
 
 ###Example 4
 
@@ -109,7 +116,9 @@ Randomize two parameters while keeping their ratio constant.
     binding_rate = [[ 10.0 * x ]]
     unbinding_rate = [[ x ]]
 
-Command: `preconfig.py 100 config.cym.tpl`
+`> preconfig 100 config.cym.tpl`
+
+In this case, Preconfig is instructed to generate 100 files.
 
 
 ###Example 5
@@ -120,7 +129,7 @@ Generate unconventional distributions with conditional expressions
     diffusion_rate = [[ x ]]
     reaction_rate = [[ 5-x if x < 5 else x-5 ]]
 
-Command: `preconfig.py 100 config.cym.tpl`
+`> preconfig 100 config.cym.tpl`
 
 
 ###Example 6
@@ -131,7 +140,7 @@ The second line below constructs a string, from the value of 'x'.
     [[ x = random.uniform(0,1) ]]
     [[ "%set x= " + str(x) ]]
 
-Command: `preconfig.py 100 config.cym.tpl`
+`> preconfig 100 config.cym.tpl`
 
 # Tutorial
 
@@ -140,7 +149,7 @@ To use preconfig, follow this steps:
 - copy a configuration file and add '.tpl' to the name (`cp config.cym config.cym.tpl`)
 - edit the template file you created, to add some double bracketed snippets,
   following the examples above.
-- run preconfig (`preconfig.py config.cym.tpl`)
+- run preconfig (`preconfig config.cym.tpl`)
 - invoke your favorite simulation tool with each file (e.g. with the UNIX command [xargs](https://en.wikipedia.org/wiki/Xargs))
 
 # Requirements
@@ -149,7 +158,7 @@ A template file, and the [python](https://www.python.org) interpreter
 
 # Testing
 
-We provide three type of template files to test `preconfig.py`:
+We provide three type of template files to test `preconfig`:
 
 - [Cytosim](www.cytosim.org) configuration files: `config?.cym.tpl`
 - [Smoldyn](www.smoldyn.org) configuration file: `smoldyn.txt.tpl`
@@ -157,19 +166,26 @@ We provide three type of template files to test `preconfig.py`:
 
 To test them, please enter the following commands, one by one:
 
-    preconfig.py configA.cym.tpl
-    preconfig.py configB.cym.tpl 16
-    preconfig.py configC.cym.tpl
-    preconfig.py smoldyn.txt.tpl
-    preconfig.py BioModel.xml.tpl
+    preconfig configA.cym.tpl
+    preconfig configB.cym.tpl 16
+    preconfig configC.cym.tpl
+    preconfig smoldyn.txt.tpl
+    preconfig BioModel.xml.tpl
 
 # Credits & Licence
 
-Francois J. Nedelec, 2010--2016.  
-preconfig.py is distributed under GPL3.0 Licence (see LICENCE.md)
+We wish to thank the members of the Nedelec group, and all users of 
+Cytosim for their feedback which has contributed greatly to this development.
+We also thank Shaun Jackman and Steven Andrews for valuable feedback!
+
+Copyright Francois J. Nedelec, 2010--2017.
+
+This is Free Software with absolutely no WARANTY.
+
+Preconfig is distributed under GPL3.0 Licence (see LICENCE.md)
 
 # Feedback
 
 Your feedback is very much appreciated, please send it to:
-francois.nedelec(xxx)embl.de
+feedback(xxx)cytosim.org
 
