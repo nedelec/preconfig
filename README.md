@@ -12,8 +12,8 @@ code using the python interpreter, proceeding recursively whenever multiple
 values are specified. Values are eventually converted to their string
 representation, and substituted in place of the code snippet. In this way,
 preconfig will generate all the possible combinations following the order in
-which these combinations were specified in the file. Importantly, any ac-
--companying text in the template file is copied verbatim to the output file,
+which these combinations were specified in the file. Importantly, any
+accompanying text in the template file is copied verbatim to the output file,
 such that any syntax present in the configuration file can be maintained
 during the process.
 
@@ -22,7 +22,7 @@ If several template files are specified, they will be processed sequentially.
 The names of the produced files are built from the name of the template
 by removing any second extension, and inserting an integer of constant width.
 
-For examples:
+Examples:
 
 - config.cym.tpl --> config0000.cym, config0001.cym, config0002.cym, etc.
 - config.txt.tpl --> config0000.txt, config0001.txt, config0002.txt, etc.
