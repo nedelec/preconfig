@@ -180,7 +180,7 @@ Copyright Francois J. Nedelec, 2010--2017.
 
 This is Free Software with absolutely no WARANTY.
 
-Preconfig is distributed under GPL3.0 Licence (see LICENCE.md)
+Preconfig is distributed under GPL3.0 Licence (see LICENCE)
 
 # Feedback
 
