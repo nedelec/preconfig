@@ -123,11 +123,10 @@ unbinding_rate = [[ x ]]
 
 <h3>Example 5</h3>
 
-<p>Generate unconventional distributions with conditional expressions</p>
+<p>Boolean variables can be used to introduce qualitative differences:</p>
 
-<pre><code>[[ x = random.uniform(1,10) ]]
-diffusion_rate = [[ x ]]
-reaction_rate = [[ 5-x if x &lt; 5 else x-5 ]]
+<pre><code>[[ enable = random.choice([0, 1]) ]]
+feeback = [[ random.uniform(0, 1) if (enable) else 0  ]]
 </code></pre>
 
 <p><code>&gt; preconfig 100 config.cym.tpl</code></p>

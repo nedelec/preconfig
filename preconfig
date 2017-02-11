@@ -123,14 +123,11 @@
    
 ## Example 5
    
-   Generate piecewise linear distributions with conditional expressions
-   
-    [[ x = random.uniform(1,10) ]]
-    diffusion_rate = [[ x ]]
-    reaction_rate = [[ 5-x if x < 5 else x-5 ]]
+   Boolean variables can be used to introduce qualitative differences:
+    [[ enable = random.choice([0, 1]) ]]
+    feeback = [[ random.uniform(0, 1) if (enable) else 0  ]]
    
    Command: `preconfig 100 TEMPLATE_FILE`
-   In this case, Preconfig is instructed to generate 100 files.
    
 ## Example 6
    
@@ -141,7 +138,6 @@
     [[ "%set x= " + str(x) ]]
    
    Command: `preconfig 100 TEMPLATE_FILE`
-   In this case, Preconfig is instructed to generate 100 files.
 
 ## Acknowledgments:
 
@@ -167,8 +163,8 @@ except ImportError:
 #-------------------------------------------------------------------------------
 
 # code snippets are surrounded by double square brackets:
-CODE_IN = '['
-CODE_OUT = ']'
+SNIPPET_OPEN = '['
+SNIPPET_CLOSE = ']'
 
 # all output is hidden by default:
 out = open(os.devnull, 'w')
@@ -341,7 +337,7 @@ def process(ifile, values, text):
     output = text
 
     while ifile:
-        (pre, code, eof) = get_block(ifile, CODE_IN, CODE_OUT)
+        (pre, code, eof) = get_block(ifile, SNIPPET_OPEN, SNIPPET_CLOSE)
         #print("text `", pre[0:32], "' of size ", len(pre))
         #print("code [[", code, "]]", eof)
         output += pre

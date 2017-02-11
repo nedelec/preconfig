@@ -84,6 +84,7 @@ To generate the files, issue this command in the terminal:
 In this case, Preconfig will generate 9 files.
 
 ###Example 2
+
 Scan multiple parameters values randomly
 
     diffusion_rate = [[ random.uniform(0,1) ]]
@@ -120,17 +121,14 @@ Randomize two parameters while keeping their ratio constant.
 
 In this case, Preconfig is instructed to generate 100 files.
 
-
 ###Example 5
 
-Generate unconventional distributions with conditional expressions
+Boolean variables can be used to introduce qualitative differences:
 
-    [[ x = random.uniform(1,10) ]]
-    diffusion_rate = [[ x ]]
-    reaction_rate = [[ 5-x if x < 5 else x-5 ]]
+    [[ enable = random.choice([0, 1]) ]]
+    feeback = [[ random.uniform(0, 1) if (enable) else 0  ]]
 
 `> preconfig 100 config.cym.tpl`
-
 
 ###Example 6
 
