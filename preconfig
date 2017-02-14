@@ -3,7 +3,7 @@
 # PRECONFIG, a versatile configuration file generator
 #
 # Copyright Francois J. Nedelec, EMBL 2010--2017
-# This is PRECONFIG version 1.0, last modified on 10.02.2017
+# This is PRECONFIG version 1.0, last modified on 14.02.2017
 
 """
 # SYNOPSIS
@@ -170,9 +170,6 @@ SNIPPET_CLOSE = ']'
 out = open(os.devnull, 'w')
 log = []
 
-# directory in which files are generated:
-target_dir = ''
-
 # motif used for make file names
 name_motif = 'config%04i.txt'
 
@@ -185,23 +182,23 @@ file_index = 0
 # list of files generated
 files_made = []
 
-# current file in process
-template_name = ''
+# current file in process (used for error reporting)
+current_template_name = ''
 
 #-------------------------------------------------------------------------------
 
-def set_name_motif(name):
+def set_name_motif(name, destination):
     """
     Extract the root and the extension of the file
     """
-    global file_motif, nb_digit, target_dir
+    global file_motif, nb_digit
     file = os.path.basename(name)
     [main, ext] = os.path.splitext(file)
     if '.' in main:
         [main, ext] = os.path.splitext(main)
     file_motif = main + '%0' + str(nb_digits) + 'i' + ext;
-    if target_dir:
-        file_motif = os.path.join(target_dir, file_motif)
+    if destination:
+        file_motif = os.path.join(destination, file_motif)
 
 
 def next_file_name():
@@ -282,7 +279,7 @@ def evaluate(cmd, values):
         res = eval(cmd, libraries, values)
     except Exception as e:
         sys.stderr.write("\033[95m")
-        sys.stderr.write("Error in file `%s`:\n" % template_name)
+        sys.stderr.write("Error in file `%s`:\n" % current_template_name)
         sys.stderr.write("\033[0m")
         sys.stderr.write("    Could not evaluate [[%s]]\n" % cmd)
         sys.stderr.write("    "+str(e)+'\n')
@@ -329,15 +326,15 @@ def get_block(file, s, e):
 
 #-------------------------------------------------------------------------------
 
-def process(ifile, values, text):
+def process(template, values, text):
     """
         process() will identify and substitute bracketed code blocks
         embedded in the input file, and generate a file at EOF.
     """
     output = text
 
-    while ifile:
-        (pre, code, eof) = get_block(ifile, SNIPPET_OPEN, SNIPPET_CLOSE)
+    while template:
+        (pre, code, eof) = get_block(template, SNIPPET_OPEN, SNIPPET_CLOSE)
         #print("text `", pre[0:32], "' of size ", len(pre))
         #print("code [[", code, "]]", eof)
         output += pre
@@ -356,18 +353,18 @@ def process(ifile, values, text):
             # use 'pop()' to test if multiple values were specified...
             # keep last value aside for later:
             val = vals.pop()
-            ipos = ifile.tell()
+            ipos = template.tell()
             for v in vals:
                 # fork recursively for all subsequent values:
                 #print("forking", v)
                 if key:
                     values[key] = v
                     out.write("|%50s <-- %s\n" % (key, str(v)) )
-                    process(ifile, values, output)
+                    process(template, values, output)
                 else:
                     out.write("|%50s --> %s\n" % (code, str(v)) )
-                    process(ifile, values, output+str(v))
-                ifile.seek(ipos)
+                    process(template, values, output+str(v))
+                template.seek(ipos)
         except (AttributeError, IndexError):
             # a single value was specified:
             val = vals
@@ -382,36 +379,36 @@ def process(ifile, values, text):
 
 
 
-def expand_values(ifile, values, text):
+def expand_values(template, values, text):
     """
         Call self recursively to remove all entries of the 
         dictionary 'values' that are associated with multiple keys
     """
     (key, vals) = pop_sequence(values)
     if key:
-        ipos = ifile.tell()
+        ipos = template.tell()
         for v in vals:
             values[key] = v
             #out.write("|%50s <-- %s\n" % (key, str(v)) )
-            expand_values(ifile, values, text)
-            ifile.seek(ipos)
+            expand_values(template, values, text)
+            template.seek(ipos)
         # restore multiple values on upward recursion
         values[key] = vals
     else:
-        process(ifile, values, text)
+        process(template, values, text)
 
 
-def parse(iname, values={}, repeat=1):
+def parse(template, values={}, repeat=1, destination=''):
     """
         process one file, and return the list of files generated
     """
     values['n'] = 0
-    global files_made, template_name
-    set_name_motif(iname)
+    global files_made, current_template_name
+    set_name_motif(template, destination)
     files_made = []
-    template_name = iname
+    current_template_name = template
     for x in range(repeat):
-        f = open(iname, 'r')
+        f = open(template, 'r')
         expand_values(f, values, '')
         f.close()
     return files_made
@@ -421,15 +418,16 @@ def parse(iname, values={}, repeat=1):
 
 
 def main(args):
-    global out, log, nb_digits, target_dir
+    global out, log, nb_digits
     inputs = []
     values = {}
     repeat = 1
     verbose = 1
+    destination = ''
     
     for arg in args:
         if os.path.isdir(arg):
-            target_dir = arg
+            destination = arg
         elif os.path.isfile(arg):
             inputs.append(arg)
         elif arg.isdigit():
@@ -457,7 +455,7 @@ def main(args):
 
     for i in inputs:
         #out.write("Reading %s\n" % i)
-        res = parse(i, values, repeat)
+        res = parse(i, values, repeat, destination)
         if verbose == 1:
             #print("%i files generated from %s:" % (len(res), i))
             for f in res:
