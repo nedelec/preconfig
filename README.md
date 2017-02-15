@@ -2,13 +2,13 @@
 
 # Overview
 
-  Preconfig is a python program used to vary parameter values in files.
+  Preconfig is a Python program used to vary parameter values in files.
 
 # Description
 
 Preconfig reads the template file from top to bottom, identifying snippets
 of code which are surrounded by double square brackets. It then executes this
-code using the python interpreter, proceeding recursively whenever multiple
+code using the Python interpreter, proceeding recursively whenever multiple
 values are specified. Values are eventually converted to their string
 representation, and substituted in place of the code snippet. In this way,
 preconfig will generate all the possible combinations following the order in
@@ -63,10 +63,10 @@ for each file made, with a list of substitutions operated for this file.
 
 ##Code Snippets
 
-Any plain python code can be embedded in the file, and functions from the
+Any plain Python code can be embedded in the file, and functions from the
 [Random Module](https://docs.python.org/library/random.html) can be used.
 It is possible to use multiple bracketed expressions in the same file, and
-to define variables in the python environment. An integer 'n', starting at
+to define variables in the Python environment. An integer 'n', starting at
 zero and corresponding to the file being generated is automatically defined.
 
 
@@ -152,7 +152,7 @@ To use preconfig, follow this steps:
 
 # Requirements
 
-A template file, and the [python](https://www.python.org) interpreter
+A template file, and the [Python](https://www.python.org) interpreter
 
 # Testing
 
