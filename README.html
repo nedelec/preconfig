@@ -11,7 +11,7 @@ of code which are surrounded by double square brackets. It then executes this
 code using the Python interpreter, proceeding recursively whenever multiple
 values are specified. Values are eventually converted to their string
 representation, and substituted in place of the code snippet. In this way,
-preconfig will generate all the possible combinations following the order in
+Preconfig will generate all the possible combinations following the order in
 which these combinations were specified in the file. Importantly, any
 accompanying text in the template file is copied verbatim to the output file,
 such that any syntax present in the configuration file can be maintained
@@ -144,13 +144,13 @@ The second line below constructs a string, from the value of 'x'.</p>
 
 <h1>Tutorial</h1>
 
-<p>To use preconfig, follow this steps:</p>
+<p>To use Preconfig, follow this steps:</p>
 
 <ul>
 <li>copy a configuration file and add '.tpl' to the name (<code>cp config.cym config.cym.tpl</code>)</li>
 <li>edit the template file you created, to add some double bracketed snippets,
 following the examples above.</li>
-<li>run preconfig (<code>preconfig config.cym.tpl</code>)</li>
+<li>run Preconfig (<code>preconfig config.cym.tpl</code>)</li>
 <li>invoke your favorite simulation tool with each file (e.g. with the UNIX command <a href="https://en.wikipedia.org/wiki/Xargs">xargs</a>)</li>
 </ul>
 
@@ -160,7 +160,7 @@ following the examples above.</li>
 
 <h1>Testing</h1>
 
-<p>We provide three type of template files to test <code>preconfig</code>:</p>
+<p>We provide three type of template files to test Preconfig:</p>
 
 <ul>
 <li><a href="www.cytosim.org">Cytosim</a> configuration files: <code>config?.cym.tpl</code></li>
