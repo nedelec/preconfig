@@ -17,7 +17,7 @@
    code using the python interpreter, proceeding recursively whenever multiple
    values are specified. Values are eventually converted to their string
    representation, and substituted in place of the code snippet. In this way,
-   preconfig will generate all the possible combinations following the order in
+   Preconfig will generate all the possible combinations following the order in
    which these combinations were specified in the file. Importantly, any ac-
    -companying text in the template file is copied verbatim to the output file,
    such that any syntax present in the configuration file can be maintained
@@ -157,7 +157,7 @@ try:
     import os, io
     libraries = { 'random': __import__('random'), 'math': __import__('math') }
 except ImportError:
-    sys.stderr.write("Error: preconfig could not load necessary python modules\n")
+    sys.stderr.write("Error: Preconfig could not load necessary python modules\n")
     sys.exit()
 
 #-------------------------------------------------------------------------------
