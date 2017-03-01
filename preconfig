@@ -78,29 +78,18 @@
    
 ## Example 1
    
-   Generate all combinations with multiple values for 2 parameters
+   Generate all combinations with multiple values for 2 parameters:
    
     rate = [[ [1, 10, 100] ]]
     speed = [[ [-1, 0, 1] ]]
    
    Command: `preconfig TEMPLATE_FILE` with the appropriate file name.
    In this case, Preconfig will generate 9 files.
-   
-## Example 2
 
-   Scan multiple parameters values randomly
-   
-    diffusion_rate = [[ random.uniform(0,1) ]]
-    reaction_rate = [[ random.choice([1, 10, 100]) ]]
-    abundance = [[ random.randint(0, 1000) ]]
-   
-   Command: `preconfig 100 TEMPLATE_FILE`
-   In this case, Preconfig is instructed to generate 100 files.
-   
-## Example 3
+## Example 2
    
    Regularly scan 2 parameters with 10 values each,
-   one according to a linear scale, and the other with a geometric scale
+   one according to a linear scale, and the other with a geometric scale:
    
     [[ x = range(10) ]]
     [[ y = range(10) ]]
@@ -108,36 +97,57 @@
     diffusion_rate = [[ 1.0 / 2**y ]]
    
    Command: `preconfig TEMPLATE_FILE`
-   In this case, Preconfig will generate 100 files.
+   In this case, Preconfig will generate 100 files, one for each combination.
+   
+## Example 3
+
+   Scan multiple parameters values randomly:
+   
+    diffusion_rate = [[ random.uniform(0,1) ]]
+    reaction_rate = [[ random.choice([1, 10, 100]) ]]
+    abundance = [[ random.randint(0, 1000) ]]
+   
+   Command: `preconfig 256 TEMPLATE_FILE`
+   In this case, Preconfig is instructed to generate 256 files.
    
 ## Example 4
    
-   Randomize two parameters while keeping their ratio constant.
+   Randomize two parameters while keeping their ratio constant:
    
     [[ x = random.uniform(0,1) ]]
     binding_rate = [[ 10.0 * x ]]
     unbinding_rate = [[ x ]]
    
-   Command: `preconfig 100 TEMPLATE_FILE`
-   In this case, Preconfig is instructed to generate 100 files.
-   
+   Command: `preconfig 256 TEMPLATE_FILE` to make 256 files.
+
 ## Example 5
    
+   Randomize one parameter, but sort out values:
+   
+    [[ x = sorted([random.uniform(0.10, 0.25) for i in range(256)]) ]]
+    binding_rate = [[ x ]]
+   
+   Command: `preconfig TEMPLATE_FILE`
+   In this case, the number of files (256) is specified in the template
+
+## Example 6
+   
    Boolean variables can be used to introduce qualitative differences:
+
     [[ enable = random.choice([0, 1]) ]]
     feeback = [[ random.uniform(0, 1) if (enable) else 0  ]]
    
-   Command: `preconfig 100 TEMPLATE_FILE`
+   Command: `preconfig 256 TEMPLATE_FILE` to make 256 files.
    
-## Example 6
+## Example 7
    
    Randomize a value, and print this value as a comment in the file.
-   The second line below constructs a string, from the value of 'x'.
+   The second line below constructs a string, from the value of 'x':
    
     [[ x = random.uniform(0,1) ]]
     [[ "%set x= " + str(x) ]]
    
-   Command: `preconfig 100 TEMPLATE_FILE`
+   Command: `preconfig 256 TEMPLATE_FILE` to make 256 files.
 
 ## Acknowledgments:
 
