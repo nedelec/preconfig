@@ -142,11 +142,14 @@
 ## Example 7
    
    Randomize a value, and print this value as a comment in the file.
-   The second line below constructs a string, from the value of 'x':
+   The second line below prints a comment, from which the value
+   of 'x' can be read. This can be useful to process the results later.
    
     [[ x = random.uniform(0,1) ]]
-    [[ "%set x= " + str(x) ]]
-   
+    % preconfig.x = [[ x ]];
+    binding_rate = [[ 10*x ]]
+    unbinding_rate = [[ 2*x ]]
+
    Command: `preconfig 256 TEMPLATE_FILE` to make 256 files.
 
 ## Acknowledgments:
