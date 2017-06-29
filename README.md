@@ -2,7 +2,7 @@
 
 # Overview
 
-  Preconfig is a Python program used to vary parameter values in files.
+Preconfig is a Python program used to vary parameter values in files.
 
 # Description
 
@@ -178,9 +178,9 @@ We also thank Shaun Jackman and Steven Andrews for valuable feedback!
 
 Copyright Francois J. Nedelec, 2010--2017.
 
-This is Free Software with absolutely no WARANTY.
+This is Free Software with absolutely no WARRANTY.
 
-Preconfig is distributed under GPL3.0 Licence (see LICENCE)
+Preconfig is distributed under GPL3.0 Licence (see LICENSE)
 
 # Feedback
 
