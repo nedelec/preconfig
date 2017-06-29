@@ -35,7 +35,7 @@ For example, to specify a width of 2, simply add "-2".
 
 preconfig [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
 
-##Options
+## Options
 
 - if a positive integer REPEAT is specified, each template file will be
 processed REPEAT times, for example: `preconfig 3 config.cym.tpl` will parse
@@ -61,7 +61,7 @@ for each file made, with a list of substitutions operated for this file.
 
 - if 'help' is specified, this documentation will be printed.
 
-##Code Snippets
+## Code Snippets
 
 Any plain Python code can be embedded in the file, and functions from the
 [Random Module](https://docs.python.org/library/random.html) can be used.
@@ -70,7 +70,7 @@ to define variables in the Python environment. An integer 'n', starting at
 zero and corresponding to the file being generated is automatically defined.
 
 
-###Example 1
+### Example 1
 
 Generate all combinations with multiple values for 2 parameters
 
@@ -83,7 +83,7 @@ To generate the files, issue this command in the terminal:
 
 In this case, Preconfig will generate 9 files.
 
-###Example 2
+### Example 2
 
 Scan multiple parameters values randomly
 
@@ -95,7 +95,7 @@ Scan multiple parameters values randomly
 
 In this case, Preconfig is instructed to generate 100 files.
 
-###Example 3
+### Example 3
 
 Regularly scan 2 parameters with 10 values each,
 one according to a linear scale, and the other with a geometric scale
@@ -109,7 +109,7 @@ one according to a linear scale, and the other with a geometric scale
 
 In this case, Preconfig will generate 100 files.
 
-###Example 4
+### Example 4
 
 Randomize two parameters while keeping their ratio constant.
 
@@ -121,7 +121,7 @@ Randomize two parameters while keeping their ratio constant.
 
 In this case, Preconfig is instructed to generate 100 files.
 
-###Example 5
+### Example 5
 
 Boolean variables can be used to introduce qualitative differences:
 
@@ -130,7 +130,7 @@ Boolean variables can be used to introduce qualitative differences:
 
 `> preconfig 100 config.cym.tpl`
 
-###Example 6
+### Example 6
 
 Randomize a value, and print this value as a comment in the file.
 The second line below constructs a string, from the value of 'x'.
