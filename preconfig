@@ -146,7 +146,7 @@
    of 'x' can be read. This can be useful to process the results later.
    
     [[ x = random.uniform(0,1) ]]
-    % preconfig.x = [[ x ]];
+    % preconfig.x = [[ x ]]
     binding_rate = [[ 10*x ]]
     unbinding_rate = [[ 2*x ]]
 
@@ -209,7 +209,7 @@ def set_name_motif(name, destination):
     [main, ext] = os.path.splitext(file)
     if '.' in main:
         [main, ext] = os.path.splitext(main)
-    file_motif = main + '%0' + str(nb_digits) + 'i' + ext;
+    file_motif = main + '%0' + str(nb_digits) + 'i' + ext
     if destination:
         file_motif = os.path.join(destination, file_motif)
 
@@ -233,7 +233,7 @@ def make_file(text, values):
     file = open(fname, 'w')
     file.write(text)
     file.close()
-    files_made.extend([fname]);
+    files_made.extend([fname])
     # fancy ouput:
     out.write("\\"+repr(values)+'\n')
     out.write(" \\"+('> '+fname).rjust(78, '-')+'\n')
@@ -316,7 +316,7 @@ def get_block(file, s, e):
         pc = ch
         ch = file.read(1)
         if not ch:
-            break;
+            break
         if ch == s:
             dep1 += 1
             if pc == s:
@@ -329,11 +329,11 @@ def get_block(file, s, e):
         if ch == e:
             dep1 -= 1
             if dep1 < 0:
-                out.write("Error: unbalanced brackets\n");
+                out.write("Error: unbalanced brackets\n")
             if pc == e and dep1 == 0:
                 return (pre, blk+ch, False)
     if blk:
-        out.write("Error: EOF encoutered within bracketted block\n");
+        out.write("Error: EOF encoutered within bracketted block\n")
     return (pre, '', True)
 
 
