@@ -3,7 +3,6 @@
 # PRECONFIG, a versatile configuration file generator
 #
 # Copyright Francois J. Nedelec, EMBL 2010--2017
-# This is PRECONFIG version 1.0, last modified on 14.02.2017
 
 """
 # SYNOPSIS
@@ -427,6 +426,11 @@ def parse(template, values={}, repeat=1, destination=''):
     return files_made
 
 
+def get_version():
+    """Read the current version of the script."""
+    with open(os.path.join(os.getcwd(), 'VERSION')) as version_file:
+        return version_file.read().strip()
+
 #-------------------------------------------------------------------------------
 
 
@@ -484,7 +488,7 @@ if __name__ == "__main__":
     elif sys.argv[1]=='help' or sys.argv[1]=='--help':
         print(__doc__)
     elif sys.argv[1]=='--version':
-        print("This is PRECONFIG version 1.0 (10.02.2017)")
+        print("This is PRECONFIG version %s" % get_version())
     else:
         main(sys.argv[1:])
 
