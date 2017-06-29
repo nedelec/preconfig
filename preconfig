@@ -341,7 +341,7 @@ def get_block(file, s, e):
 
 def process(template, values, text):
     """
-        process() will identify and substitute bracketed code blocks
+        `process()` will identify and substitute bracketed code blocks
         embedded in the input file, and generate a file at EOF.
     """
     output = text
@@ -395,7 +395,7 @@ def process(template, values, text):
 def expand_values(template, values, text):
     """
         Call self recursively to remove all entries of the 
-        dictionary 'values' that are associated with multiple keys
+        dictionary 'values' that are associated with multiple keys.
     """
     (key, vals) = pop_sequence(values)
     if key:
