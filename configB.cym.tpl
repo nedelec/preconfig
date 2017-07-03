@@ -1,7 +1,7 @@
 % Example template file
 % illustrating random sampling
 %
-% command is 'preconfig.py configB.cym.tpl 100'
+% command is 'preconfig configB.cym.tpl 100'
 % F. Nedelec, November 2016
 
 set simul fiber 

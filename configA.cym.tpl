@@ -1,6 +1,6 @@
 % Example template file
 % illustrating deterministic variations
-% command is 'preconfig.py configA.cym.tpl'
+% command is 'preconfig configA.cym.tpl'
 %
 % F. Nedelec, November 2016
 
