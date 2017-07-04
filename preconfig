@@ -3,7 +3,7 @@
 # PRECONFIG, a versatile configuration file generator
 #
 # Copyright Francois J. Nedelec, EMBL 2010--2017
-# This is PRECONFIG version 1.0, last modified on 14.02.2017
+# This is PRECONFIG version 1.01, last modified on 4.7.2017
 
 """
 # SYNOPSIS
@@ -307,31 +307,29 @@ def get_block(file, s, e):
         - the block with its delimiters
         - EOF (True or False)
     """
-    ch = file.read(1)
     pre = ''
     blk = ''
-    dep1 = (ch==s)
+    dep1 = 0
     dep2 = 0
-    while ch:
-        pc = ch
+    while file:
         ch = file.read(1)
         if not ch:
             break
         if ch == s:
             dep1 += 1
-            if pc == s:
+            if file.peek(1)[:1] == s:
                 dep2 = 1
         if dep2:
-            blk += pc
+            blk += ch
         else:
-            pre += pc
+            pre += ch
         #print("%c dep1 %i dep2 %i" %(ch, dep1, dep2))
         if ch == e:
             dep1 -= 1
             if dep1 < 0:
                 out.write("Error: unbalanced brackets\n")
-            if pc == e and dep1 == 0:
-                return (pre, blk+ch, False)
+            if dep2 and file.peek(1)[:1] == e:
+                return (pre, blk+file.read(1), False)
     if blk:
         out.write("Error: EOF encoutered within bracketted block\n")
     return (pre, '', True)
@@ -349,7 +347,7 @@ def process(template, values, text):
     while template:
         (pre, code, eof) = get_block(template, SNIPPET_OPEN, SNIPPET_CLOSE)
         #print("text `", pre[0:32], "' of size ", len(pre))
-        #print("code [[", code, "]]", eof)
+        #print("code [["+pre+"]] EOF=%i" % eof)
         output += pre
         if eof:
             # having exhausted the input, we generate a file:
@@ -484,7 +482,7 @@ if __name__ == "__main__":
     elif sys.argv[1]=='help' or sys.argv[1]=='--help':
         print(__doc__)
     elif sys.argv[1]=='--version':
-        print("This is PRECONFIG version 1.0 (10.02.2017)")
+        print("This is PRECONFIG version 1.01 (4.7.2017)")
     else:
         main(sys.argv[1:])
 
