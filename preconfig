@@ -3,7 +3,7 @@
 # PRECONFIG, a versatile configuration file generator
 #
 # Copyright Francois J. Nedelec, EMBL 2010--2017
-# This is PRECONFIG version 1.01, last modified on 4.7.2017
+# This is PRECONFIG version 1.02, last modified on 15.7.2017
 
 """
 # SYNOPSIS
@@ -63,8 +63,8 @@
    
    - if a '+' is specified, more detailed information on the parsing is provided.
    
-   - if 'log' is specified, a file 'log.csv' will be created containing one line
-   for each file made, with a list of substitutions operated for this file.
+   - if '++' or 'log' is specified, a file 'log.csv' will be created containing one
+   line for each file created, containing the substitutions operated for this file.
    
    - if '--help' is specified, this documentation will be printed.
    
@@ -303,35 +303,34 @@ def get_block(file, s, e):
     """
     Extract the next block starting with DOUBLE delimiters 'ss' and ending with 'ee'
     Returns a set with 3 values:
-        - the text found before the block
+        - the text found before the block start
         - the block with its delimiters
-        - EOF (True or False)
+        - a boolean EOF indicator
     """
+    ch = file.read(1)
     pre = ''
     blk = ''
-    dep1 = 0
-    dep2 = 0
-    while file:
+    dep = 0
+    while file and ch:
+        pc = ch
         ch = file.read(1)
-        if not ch:
-            break
         if ch == s:
-            dep1 += 1
-            if file.peek(1)[:1] == s:
-                dep2 = 1
-        if dep2:
-            blk += ch
+            if pc == s and dep == 0:
+                dep = 1
+            if dep > 0:
+                dep += 1
+        if dep > 0:
+            blk += pc
         else:
-            pre += ch
-        #print("%c dep1 %i dep2 %i" %(ch, dep1, dep2))
+            pre += pc
+        #print("%c%c dep %i" %(pc, ch, dep))
         if ch == e:
-            dep1 -= 1
-            if dep1 < 0:
-                out.write("Error: unbalanced brackets\n")
-            if dep2 and file.peek(1)[:1] == e:
-                return (pre, blk+file.read(1), False)
+            if pc == e and dep == 1:
+                return (pre, blk+ch, False)
+            if dep > 0:
+                dep -= 1
     if blk:
-        out.write("Error: EOF encoutered within bracketted block\n")
+        out.write("Error: unclosed bracketted block in:%s\n" % pre);
     return (pre, '', True)
 
 
@@ -448,7 +447,7 @@ def main(args):
         elif arg == '+':
             out = sys.stderr
             verbose = 0
-        elif arg == 'log':
+        elif arg == '++' or arg == 'log':
             log = open('log.csv', 'w')
         elif arg[0] == '-' and arg[1:].isdigit():
             nb_digits = int(arg[1:])
