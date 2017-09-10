@@ -2,11 +2,11 @@
 
 # Overview
 
-Preconfig is a Python program used to vary parameter values in files.
+Preconfig generates files from a template by evaluating doubly-bracketed Python code.
 
 # Description
 
-Preconfig reads the template file from top to bottom, identifying snippets
+Preconfig reads a template file from top to bottom, identifying snippets
 of code which are surrounded by double square brackets. It then executes this
 code using the Python interpreter, proceeding recursively whenever multiple
 values are specified. Values are eventually converted to their string
@@ -29,46 +29,46 @@ Examples:
 - model.xml.tpl --> model0000.xml, model0001.xml, model0002.xml, etc.
 
 The width of the variable part (default=4) can be changed on the command line.
-For example, to specify a width of 2, simply add "-2".
+For instance, to specify a width of 2, simply invoke "preconfig -2 ...".
 
 # Syntax
 
-preconfig [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
+    preconfig [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
 
 ## Options
 
-- if a positive integer REPEAT is specified, each template file will be
-processed REPEAT times, for example: `preconfig 3 config.cym.tpl` will parse
-the template three times and generate three times more files.
-
-- if the name of an existing directory is specified, files will be created
-in this directory, for example: `preconfig config_dir config.cym.tpl`
-
-- DEFINITIONS can be specified on the command line as 'name=value' or 
-'name=sequence', with no space around the '='. They are added to the 
-dictionary used to evaluate the code snippets found inside the template file,
-for example: `preconfig n_molecules=100 config.cym.tpl`
-
-- if a negative integer is specified, this will affect the naming of the files,
-for example: `preconfig -3 config.cym.tpl` will create 'config001.cym', etc.
-
-- if a '-' is specified, this will suppress all accessory output
-
-- if a '+' is specified, more detailed information on the parsing is provided.
-
-- if 'log' is specified, a file 'log.csv' will be created containing one line
-for each file made, with a list of substitutions operated for this file.
-
-- if 'help' is specified, this documentation will be printed.
+   - if a positive integer REPEAT is specified, each template file will be
+   processed REPEAT times, for example: `preconfig 3 config.cym.tpl` will parse
+   the template three times and generate three times more files.
+   
+   - if the path to an existing directory is specified, files will be created
+   in this directory, for example: `preconfig dir config.cym.tpl`
+   
+   - DEFINITIONS can be specified on the command line as 'name=value' or 
+   'name=sequence', with no space around the '='. They are added to the 
+   dictionary used to evaluate the code snippets found inside the template file,
+   for example: `preconfig n_molecules=100 config.cym.tpl`
+   
+   - if a negative integer is specified, this will set the width of the integer
+   that is used to build the file namess.
+   For example: `preconfig -2 config.cym.tpl` will create 'config00.cym', etc.
+   
+   - if a '-' is specified, all accessory output is suppressed
+   
+   - if a '+' is specified, more detailed information on the parsing is provided.
+   
+   - if '++' or 'log' is specified, a file 'log.csv' will be created containing one
+   line for each file created, containing the substitutions operated for this file.
+   
+   - if '--help' is specified, this documentation will be printed.
 
 ## Code Snippets
 
-Any plain Python code can be embedded in the file, and functions from the
+Any plain python code can be embedded in the file, and functions from the
 [Random Module](https://docs.python.org/library/random.html) can be used.
 It is possible to use multiple bracketed expressions in the same file, and
-to define variables in the Python environment. An integer 'n', starting at
+to define variables in the python environment. An integer 'n', starting at
 zero and corresponding to the file being generated is automatically defined.
-
 
 ### Example 1
 
@@ -139,6 +139,26 @@ The second line below constructs a string, from the value of 'x'.
     [[ "%set x= " + str(x) ]]
 
 `> preconfig 100 config.cym.tpl`
+
+## Example 7
+   
+Randomize a value, and print this value as a comment in the file:
+   
+    [[ x = random.uniform(0,1) ]]% [[x]]
+   
+This sets a value for x, and print this value after '%',
+In this case the '%' is used to indicate a comment, such that the line is skipped by
+the simulation program that reads the file. However, the value can be read by any
+analysis script that will later process the results of the simulation.
+The value `x` can be used later:
+
+    binding_rate = [[ 10*x ]]
+    unbinding_rate = [[ 2*x ]]
+
+To generate 256 files:
+
+`> preconfig 256 TEMPLATE_FILE`
+
 
 # Tutorial
 

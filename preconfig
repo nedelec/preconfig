@@ -141,12 +141,16 @@
    
 ## Example 7
    
-   Randomize a value, and print this value as a comment in the file.
-   The second line below prints a comment, from which the value
-   of 'x' can be read. This can be useful to process the results later.
+   Randomize a value, and print this value as a comment in the file:
    
-    [[ x = random.uniform(0,1) ]]
-    % preconfig.x = [[ x ]]
+    [[ x = random.uniform(0,1) ]]% [[x]]
+   
+   This sets a value for x, and print this value after '%',
+   In this case the '%' is used to indicate a comment, such that the line is skipped by
+   the simulation program that reads the file. However, the value can be read by any
+   analysis script that will later process the results of the simulation. 
+   The value `x` can be used later:
+
     binding_rate = [[ 10*x ]]
     unbinding_rate = [[ 2*x ]]
 

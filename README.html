@@ -2,11 +2,11 @@
 
 <h1>Overview</h1>
 
-<p>Preconfig is a Python program used to vary parameter values in files.</p>
+<p>Preconfig generates files from a template by evaluating doubly-bracketed Python code.</p>
 
 <h1>Description</h1>
 
-<p>Preconfig reads the template file from top to bottom, identifying snippets
+<p>Preconfig reads a template file from top to bottom, identifying snippets
 of code which are surrounded by double square brackets. It then executes this
 code using the Python interpreter, proceeding recursively whenever multiple
 values are specified. Values are eventually converted to their string
@@ -31,11 +31,12 @@ by removing any second extension, and inserting an integer of constant width.</p
 </ul>
 
 <p>The width of the variable part (default=4) can be changed on the command line.
-For example, to specify a width of 2, simply add "-2".</p>
+For instance, to specify a width of 2, simply invoke "preconfig -2 ...".</p>
 
 <h1>Syntax</h1>
 
-<p>preconfig [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]</p>
+<pre><code>preconfig [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
+</code></pre>
 
 <h2>Options</h2>
 
@@ -43,27 +44,28 @@ For example, to specify a width of 2, simply add "-2".</p>
 <li><p>if a positive integer REPEAT is specified, each template file will be
 processed REPEAT times, for example: <code>preconfig 3 config.cym.tpl</code> will parse
 the template three times and generate three times more files.</p></li>
-<li><p>if the name of an existing directory is specified, files will be created
-in this directory, for example: <code>preconfig config_dir config.cym.tpl</code></p></li>
+<li><p>if the path to an existing directory is specified, files will be created
+in this directory, for example: <code>preconfig dir config.cym.tpl</code></p></li>
 <li><p>DEFINITIONS can be specified on the command line as 'name=value' or 
 'name=sequence', with no space around the '='. They are added to the 
 dictionary used to evaluate the code snippets found inside the template file,
 for example: <code>preconfig n_molecules=100 config.cym.tpl</code></p></li>
-<li><p>if a negative integer is specified, this will affect the naming of the files,
-for example: <code>preconfig -3 config.cym.tpl</code> will create 'config001.cym', etc.</p></li>
-<li><p>if a '-' is specified, this will suppress all accessory output</p></li>
+<li><p>if a negative integer is specified, this will set the width of the integer
+that is used to build the file namess.
+For example: <code>preconfig -2 config.cym.tpl</code> will create 'config00.cym', etc.</p></li>
+<li><p>if a '-' is specified, all accessory output is suppressed</p></li>
 <li><p>if a '+' is specified, more detailed information on the parsing is provided.</p></li>
-<li><p>if 'log' is specified, a file 'log.csv' will be created containing one line
-for each file made, with a list of substitutions operated for this file.</p></li>
-<li><p>if 'help' is specified, this documentation will be printed.</p></li>
+<li><p>if '++' or 'log' is specified, a file 'log.csv' will be created containing one
+line for each file created, containing the substitutions operated for this file.</p></li>
+<li><p>if '--help' is specified, this documentation will be printed.</p></li>
 </ul>
 
 <h2>Code Snippets</h2>
 
-<p>Any plain Python code can be embedded in the file, and functions from the
+<p>Any plain python code can be embedded in the file, and functions from the
 <a href="https://docs.python.org/library/random.html">Random Module</a> can be used.
 It is possible to use multiple bracketed expressions in the same file, and
-to define variables in the Python environment. An integer 'n', starting at
+to define variables in the python environment. An integer 'n', starting at
 zero and corresponding to the file being generated is automatically defined.</p>
 
 <h3>Example 1</h3>
@@ -142,6 +144,27 @@ The second line below constructs a string, from the value of 'x'.</p>
 
 <p><code>&gt; preconfig 100 config.cym.tpl</code></p>
 
+<h2>Example 7</h2>
+
+<p>Randomize a value, and print this value as a comment in the file:</p>
+
+<pre><code>[[ x = random.uniform(0,1) ]]% [[x]]
+</code></pre>
+
+<p>This sets a value for x, and print this value after '%',
+In this case the '%' is used to indicate a comment, such that the line is skipped by
+the simulation program that reads the file. However, the value can be read by any
+analysis script that will later process the results of the simulation.
+The value <code>x</code> can be used later:</p>
+
+<pre><code>binding_rate = [[ 10*x ]]
+unbinding_rate = [[ 2*x ]]
+</code></pre>
+
+<p>To generate 256 files:</p>
+
+<p><code>&gt; preconfig 256 TEMPLATE_FILE</code></p>
+
 <h1>Tutorial</h1>
 
 <p>To use Preconfig, follow this steps:</p>
@@ -185,9 +208,9 @@ We also thank Shaun Jackman and Steven Andrews for valuable feedback!</p>
 
 <p>Copyright Francois J. Nedelec, 2010--2017.</p>
 
-<p>This is Free Software with absolutely no WARANTY.</p>
+<p>This is Free Software with absolutely no WARRANTY.</p>
 
-<p>Preconfig is distributed under GPL3.0 Licence (see LICENCE)</p>
+<p>Preconfig is distributed under GPL3.0 Licence (see LICENSE)</p>
 
 <h1>Feedback</h1>
 
