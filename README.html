@@ -135,17 +135,6 @@ feeback = [[ random.uniform(0, 1) if (enable) else 0  ]]
 
 <h3>Example 6</h3>
 
-<p>Randomize a value, and print this value as a comment in the file.
-The second line below constructs a string, from the value of 'x'.</p>
-
-<pre><code>[[ x = random.uniform(0,1) ]]
-[[ "%set x= " + str(x) ]]
-</code></pre>
-
-<p><code>&gt; preconfig 100 config.cym.tpl</code></p>
-
-<h2>Example 7</h2>
-
 <p>Randomize a value, and print this value as a comment in the file:</p>
 
 <pre><code>[[ x = random.uniform(0,1) ]]% [[x]]

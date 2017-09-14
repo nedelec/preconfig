@@ -131,16 +131,6 @@ Boolean variables can be used to introduce qualitative differences:
 `> preconfig 100 config.cym.tpl`
 
 ### Example 6
-
-Randomize a value, and print this value as a comment in the file.
-The second line below constructs a string, from the value of 'x'.
-
-    [[ x = random.uniform(0,1) ]]
-    [[ "%set x= " + str(x) ]]
-
-`> preconfig 100 config.cym.tpl`
-
-## Example 7
    
 Randomize a value, and print this value as a comment in the file:
    
