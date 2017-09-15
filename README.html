@@ -125,6 +125,17 @@ unbinding_rate = [[ x ]]
 
 <h3>Example 5</h3>
 
+<p>Randomize one parameter, using 256 values in ascending order:</p>
+
+<pre><code>[[ x = sorted([random.uniform(0.10, 0.25) for i in range(256)]) ]]
+binding_rate = [[ x ]]
+</code></pre>
+
+<p>Command: <code>preconfig TEMPLATE_FILE</code>
+   In this case, the number of files (256) is specified in the template</p>
+
+<h3>Example 6</h3>
+
 <p>Boolean variables can be used to introduce qualitative differences:</p>
 
 <pre><code>[[ enable = random.choice([0, 1]) ]]
@@ -133,7 +144,7 @@ feeback = [[ random.uniform(0, 1) if (enable) else 0  ]]
 
 <p><code>&gt; preconfig 100 config.cym.tpl</code></p>
 
-<h3>Example 6</h3>
+<h3>Example 7</h3>
 
 <p>Randomize a value, and print this value as a comment in the file:</p>
 

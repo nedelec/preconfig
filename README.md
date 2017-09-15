@@ -122,6 +122,16 @@ Randomize two parameters while keeping their ratio constant.
 In this case, Preconfig is instructed to generate 100 files.
 
 ### Example 5
+   
+   Randomize one parameter, using 256 values in ascending order:
+   
+    [[ x = sorted([random.uniform(0.10, 0.25) for i in range(256)]) ]]
+    binding_rate = [[ x ]]
+   
+   Command: `preconfig TEMPLATE_FILE`
+   In this case, the number of files (256) is specified in the template
+
+### Example 6
 
 Boolean variables can be used to introduce qualitative differences:
 
@@ -130,7 +140,7 @@ Boolean variables can be used to introduce qualitative differences:
 
 `> preconfig 100 config.cym.tpl`
 
-### Example 6
+### Example 7
    
 Randomize a value, and print this value as a comment in the file:
    
