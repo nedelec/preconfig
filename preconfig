@@ -2,7 +2,7 @@
 #
 # PRECONFIG, a versatile configuration file generator
 #
-# Copyright Francois J. Nedelec, EMBL 2010--2017
+# Copyright Francois J. Nedelec, EMBL 2010--2018
 # This is PRECONFIG version 1.04, last modified on 7.06.2018
 
 """
@@ -123,7 +123,7 @@
 
 ## Example 5
    
-   Randomize one parameter, using 256 values in ascending order:
+   Randomize one parameter, using 256 random values in [0.10, 0.25], in ascending order:
    
     [[ x = sorted([random.uniform(0.10, 0.25) for i in range(256)]) ]]
     binding_rate = [[ x ]]
@@ -144,7 +144,8 @@
    
    Randomize a value, and print this value as a comment in the file.
    The second line below the [[...]] prints a comment, from which the value
-   of 'x' can be read. This can be useful to process the results later.
+   of 'x' can be read easily (for example using 'grep preconfig.').
+   This can be useful to process the results later.
    
     [[ x = random.uniform(0,1) ]]
     % preconfig.x = [[ x ]];
@@ -155,11 +156,11 @@
 
 ## Acknowledgments:
 
-We wish to thank the members of the Nedelec group, and all users of 
+We wish to thank the members of the Nedelec group at EMBL, and all users of 
 Cytosim for their feedback which has contributed greatly to this development.
 We thanks Shaun Jackman and Steven Andrews for valuable feedback!
 
-Copyright Francois J. Nedelec, 2010--2017
+Copyright Francois J. Nedelec, 2010--2018
 This is Free Software with absolutely no WARANTY.
 Preconfig is distributed under GPL3.0 Licence (see LICENCE)
 """
