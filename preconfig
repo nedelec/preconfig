@@ -2,8 +2,8 @@
 #
 # PRECONFIG, a versatile configuration file generator
 #
-# Copyright Francois J. Nedelec, EMBL 2010--2018
-# This is PRECONFIG version 1.04, last modified on 7.06.2018
+# Copyright Francois J. Nedelec, EMBL 2010--2017
+# This is PRECONFIG version 1.05, last modified on 8.8.2018
 
 """
 # SYNOPSIS
@@ -123,7 +123,7 @@
 
 ## Example 5
    
-   Randomize one parameter, using 256 random values in [0.10, 0.25], in ascending order:
+   Randomize one parameter, using 256 values in ascending order:
    
     [[ x = sorted([random.uniform(0.10, 0.25) for i in range(256)]) ]]
     binding_rate = [[ x ]]
@@ -144,8 +144,7 @@
    
    Randomize a value, and print this value as a comment in the file.
    The second line below the [[...]] prints a comment, from which the value
-   of 'x' can be read easily (for example using 'grep preconfig.').
-   This can be useful to process the results later.
+   of 'x' can be read. This can be useful to process the results later.
    
     [[ x = random.uniform(0,1) ]]
     % preconfig.x = [[ x ]];
@@ -156,11 +155,11 @@
 
 ## Acknowledgments:
 
-We wish to thank the members of the Nedelec group at EMBL, and all users of 
+We wish to thank the members of the Nedelec group, and all users of 
 Cytosim for their feedback which has contributed greatly to this development.
 We thanks Shaun Jackman and Steven Andrews for valuable feedback!
 
-Copyright Francois J. Nedelec, 2010--2018
+Copyright Francois J. Nedelec, 2010--2017
 This is Free Software with absolutely no WARANTY.
 Preconfig is distributed under GPL3.0 Licence (see LICENCE)
 """
@@ -186,9 +185,9 @@ out = open(os.devnull, 'w')
 log = []
 
 # motif used to compose file names
-name_motif = 'config%04i.txt'
+pattern = 'config%04i.txt'
 
-# number of digits used in `name_motif`
+# number of digits used in `pattern`
 nb_digits = 4
 
 # index of file being generated
@@ -202,26 +201,26 @@ current_template_name = ''
 
 #-------------------------------------------------------------------------------
 
-def set_name_motif(name, destination):
+def set_pattern(name, destination):
     """
     Extract the root and the extension of the file
     """
-    global file_motif, nb_digit
+    global pattern, nb_digit
     file = os.path.basename(name)
     [main, ext] = os.path.splitext(file)
     if '.' in main:
         [main, ext] = os.path.splitext(main)
-    file_motif = main + '%0' + str(nb_digits) + 'i' + ext
+    pattern = main + '%0' + str(nb_digits) + 'i' + ext
     if destination:
-        file_motif = os.path.join(destination, file_motif)
+        pattern = os.path.join(destination, pattern)
 
 
 def next_file_name():
     """
     Generate the name of the next output file
     """
-    global file_index, file_motif
-    n = file_motif % file_index
+    global file_index, pattern
+    n = pattern % file_index
     file_index += 1
     return n
 
@@ -420,7 +419,7 @@ def parse(template, values={}, repeat=1, destination=''):
     """
     values['n'] = 0
     global files_made, current_template_name
-    set_name_motif(template, destination)
+    set_pattern(template, destination)
     files_made = []
     current_template_name = template
     for x in range(repeat):
