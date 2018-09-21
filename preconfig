@@ -293,10 +293,11 @@ def evaluate(cmd, values):
         res = eval(cmd, libraries, values)
     except Exception as e:
         sys.stderr.write("\033[95m")
-        sys.stderr.write("Error in file `%s`:\n" % current_template_name)
+        sys.stderr.write("Error in `%s`:\n" % current_template_name)
         sys.stderr.write("\033[0m")
         sys.stderr.write("    Could not evaluate [[%s]]\n" % cmd)
         sys.stderr.write("    "+str(e)+'\n')
+        sys.exit(1)
     try:
         res = list(res)
     except Exception:
