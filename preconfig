@@ -2,8 +2,8 @@
 #
 # PRECONFIG, a versatile configuration file generator
 #
-# Copyright Francois J. Nedelec, EMBL 2010--2017
-# This is PRECONFIG version 1.05, last modified on 8.8.2018
+# Copyright Francois J. Nedelec, EMBL 2010--2018
+# This is PRECONFIG version 1.1, last modified on 22.3.2019
 
 """
 # SYNOPSIS
@@ -35,7 +35,7 @@
    - model.xml.tpl --> model0000.xml, model0001.xml, model0002.xml, etc.
    
    The width of the variable part (default=4) can be changed on the command line.
-   For instance, to specify a width of 2, simply invoke "preconfig -2 ...".
+   For instance, to specify a width of 2 characters, invoke "preconfig -2 ...".
    
 # SYNTAX
    
@@ -159,7 +159,7 @@ We wish to thank the members of the Nedelec group, and all users of
 Cytosim for their feedback which has contributed greatly to this development.
 We thanks Shaun Jackman and Steven Andrews for valuable feedback!
 
-Copyright Francois J. Nedelec, 2010--2017
+Copyright Francois J. Nedelec, 2010--2018
 This is Free Software with absolutely no WARANTY.
 Preconfig is distributed under GPL3.0 Licence (see LICENCE)
 """
@@ -169,7 +169,7 @@ import sys
 
 try:
     import os, io
-    libraries = { 'random': __import__('random'), 'math': __import__('math') }
+    globals = { 'random': __import__('random'), 'math': __import__('math') }
 except ImportError:
     sys.stderr.write("Error: Preconfig could not load necessary python modules\n")
     sys.exit()
@@ -187,7 +187,7 @@ log = []
 # motif used to compose file names
 pattern = 'config%04i.txt'
 
-# number of digits used in `pattern`
+# number of digits used to compose `pattern`
 nb_digits = 4
 
 # index of file being generated
@@ -196,8 +196,8 @@ file_index = 0
 # list of files generated
 files_made = []
 
-# current input file being processed (used for error reporting)
-current_template_name = ''
+# name of current input file being processed (used for error reporting)
+template = ''
 
 #-------------------------------------------------------------------------------
 
@@ -205,14 +205,14 @@ def set_pattern(name, destination):
     """
     Extract the root and the extension of the file
     """
-    global pattern, nb_digit
-    file = os.path.basename(name)
-    [main, ext] = os.path.splitext(file)
+    global pattern, nb_digit, file_index
+    [main, ext] = os.path.splitext(os.path.basename(name))
     if '.' in main:
         [main, ext] = os.path.splitext(main)
     pattern = main + '%0' + str(nb_digits) + 'i' + ext
     if destination:
         pattern = os.path.join(destination, pattern)
+    file_index = 0
 
 
 def next_file_name():
@@ -230,14 +230,13 @@ def make_file(text, values):
     Create a file with the specified text
     """
     global files_made, file_index
-    fname = next_file_name()
-    file = open(fname, 'w')
-    file.write(text)
-    file.close()
-    files_made.extend([fname])
+    name = next_file_name()
+    with open(name, 'w') as f:
+        f.write(text)
+        files_made.extend([name])
     # fancy ouput:
     out.write("\\"+repr(values)+'\n')
-    out.write(" \\"+('> '+fname).rjust(78, '-')+'\n')
+    out.write(" \\"+('> '+name).rjust(78, '-')+'\n')
     # write log:
     if log:
         keys = sorted(values.keys())
@@ -246,7 +245,7 @@ def make_file(text, values):
             for k in keys:
                 log.write(', %10s' % k)
             log.write('\n')
-        log.write('%20s' % fname)
+        log.write('%20s' % name)
         for k in keys:
             log.write(', %10s' % repr(values[k]))
         log.write('\n')
@@ -273,27 +272,30 @@ def pop_sequence(dic):
 
 def try_assignment(cmd):
     """
-        Try to evaluate `cmd` as a variable assignent,
-        and if that succeeds, expand dictionary `values`
+        Check if `cmd` follows the format of a variable assignent,
+        and if that succeeds, return the key and value strings in a tuple.
     """
-    [k, e, v] = cmd.partition('=')
-    if k and v and e=='=':
-        k = k.strip()
-        v = v.strip()
-        return (k, v)
+    try:
+        k, v = cmd.split("=")
+        if k and v:
+            k = k.strip()
+            v = v.strip()
+            return (k, v)
+    except ValueError:
+        pass
     return ('', cmd)
 
 
-def evaluate(cmd, values):
+def evaluate(cmd, locals):
     """
         Evaluate `cmd` and return the result
     """
     res = cmd
     try:
-        res = eval(cmd, libraries, values)
+        res = eval(cmd, globals, locals)
     except Exception as e:
         sys.stderr.write("\033[95m")
-        sys.stderr.write("Error in `%s`:\n" % current_template_name)
+        sys.stderr.write("Error in `%s`:\n" % template)
         sys.stderr.write("\033[0m")
         sys.stderr.write("    Could not evaluate [[%s]]\n" % cmd)
         sys.stderr.write("    "+str(e)+'\n')
@@ -342,91 +344,89 @@ def get_block(file, s, e):
 
 #-------------------------------------------------------------------------------
 
-def process(template, values, text):
+def process(file, locals, text):
     """
         `process()` will identify and substitute bracketed code blocks
         embedded in the input file, and generate a file at EOF.
     """
     output = text
 
-    while template:
-        (pre, code, eof) = get_block(template, SNIPPET_OPEN, SNIPPET_CLOSE)
+    while file:
+        (pre, code, eof) = get_block(file, SNIPPET_OPEN, SNIPPET_CLOSE)
         #print("text `", pre[0:32], "' of size ", len(pre))
         #print("code [["+pre+"]] EOF=%i" % eof)
         output += pre
         if eof:
             # having exhausted the input, we generate a file:
-            make_file(output, values)
+            make_file(output, locals)
             return
         # remove outer brackets:
         cmd = code[2:-2]
         #print("embedded code '%s'" % code)
         # interpret command:
         (key, vals) = try_assignment(cmd)
-        vals = evaluate(vals, values)
+        vals = evaluate(vals, locals)
         #print("`"+key+"' is "+repr(vals))
         try:
             # use 'pop()' to test if multiple values were specified...
             # keep last value aside for later:
             val = vals.pop()
-            ipos = template.tell()
+            ipos = file.tell()
             for v in vals:
                 # fork recursively for all subsequent values:
                 #print("forking", v)
                 if key:
-                    values[key] = v
+                    locals[key] = v
                     out.write("|%50s <-- %s\n" % (key, str(v)) )
-                    process(template, values, output)
+                    process(file, locals, output)
                 else:
                     out.write("|%50s --> %s\n" % (code, str(v)) )
-                    process(template, values, output+str(v))
-                template.seek(ipos)
+                    process(file, locals, output+str(v))
+                file.seek(ipos)
         except (AttributeError, IndexError):
             # a single value was specified:
             val = vals
         # handle remaining value:
         # print("handling", key, val)
         if key:
-            values[key] = val
+            locals[key] = val
             out.write("|%50s <-- %s\n" % (key, str(val)) )
         else:
             output += str(val)
             out.write("|%50s --> %s\n" % (code, str(val)) )
 
 
-
-def expand_values(template, values, text):
+def expand_values(file, values, text):
     """
         Call self recursively to remove all entries of the 
         dictionary 'values' that are associated with multiple keys.
     """
     (key, vals) = pop_sequence(values)
     if key:
-        ipos = template.tell()
+        ipos = file.tell()
         for v in vals:
             values[key] = v
             #out.write("|%50s <-- %s\n" % (key, str(v)) )
-            expand_values(template, values, text)
-            template.seek(ipos)
+            expand_values(file, values, text)
+            file.seek(ipos)
         # restore multiple values on upward recursion
         values[key] = vals
     else:
-        process(template, values, text)
+        process(file, values, text)
 
 
-def parse(template, values={}, repeat=1, destination=''):
+def parse(name, values={}, repeat=1, destination=''):
     """
         process one file, and return the list of files generated
     """
     values['n'] = 0
-    global files_made, current_template_name
-    set_pattern(template, destination)
+    global files_made, template
+    template = name
+    set_pattern(name, destination)
     files_made = []
-    current_template_name = template
     for x in range(repeat):
-        f = open(template, 'r')
-        expand_values(f, values, '')
-        f.close()
+        with open(name, 'r') as f:
+            expand_values(f, values, '')
     return files_made
 
 
@@ -436,7 +436,7 @@ def parse(template, values={}, repeat=1, destination=''):
 def main(args):
     global out, log, nb_digits
     inputs = []
-    values = {}
+    locals = {}
     repeat = 1
     verbose = 1
     destination = ''
@@ -458,9 +458,9 @@ def main(args):
         elif arg[0] == '-' and arg[1:].isdigit():
             nb_digits = int(arg[1:])
         else:
-            (k,v)=try_assignment(arg)
+            (k,v) = try_assignment(arg)
             if k:
-                values[k] = evaluate(v, values)
+                locals[k] = evaluate(v, locals)
             else:
                 sys.stderr.write("  Error: unexpected argument `%s'\n" % arg)
                 sys.exit()
@@ -471,7 +471,7 @@ def main(args):
 
     for i in inputs:
         #out.write("Reading %s\n" % i)
-        res = parse(i, values, repeat, destination)
+        res = parse(i, locals, repeat, destination)
         if verbose == 1:
             #print("%i files generated from %s:" % (len(res), i))
             for f in res:
@@ -484,10 +484,10 @@ def main(args):
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("You must specify a template file (for instructions, invoke with option '--help')")
-    elif sys.argv[1]=='help' or sys.argv[1]=='--help':
+    elif sys.argv[1].endswith("help"):
         print(__doc__)
     elif sys.argv[1]=='--version':
-        print("This is PRECONFIG version 1.05 (8.8.2018)")
+        print("This is PRECONFIG version 1.1 (22.3.2019)")
     else:
         main(sys.argv[1:])
 
