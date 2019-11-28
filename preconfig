@@ -2,8 +2,8 @@
 #
 # PRECONFIG, a versatile configuration file generator
 #
-# Copyright Francois J. Nedelec, EMBL 2010--2018
-# This is PRECONFIG version 1.1, last modified on 22.3.2019
+# Copyright Francois J. Nedelec, EMBL 2010--2017, Cambridge University 2019--
+# This is PRECONFIG version 1.1.0, last modified on 28.11.2019
 
 """
 # SYNOPSIS
@@ -153,6 +153,16 @@
 
    Command: `preconfig 256 TEMPLATE_FILE` to make 256 files.
 
+## Example 8
+
+   Quotations can be used to aggregate values:
+
+    [[ vector = ['-1 0 1', '0 1 1', '-1 0 -1'] ]]
+    new microtubule
+    {
+        position = [[vector]]
+    }
+
 ## Acknowledgments:
 
 We wish to thank the members of the Nedelec group, and all users of 
@@ -301,9 +311,11 @@ def evaluate(cmd, locals):
         sys.stderr.write("    "+str(e)+'\n')
         sys.exit(1)
     try:
-        res = list(res)
+        if not isinstance(v, str):
+            res = list(res)
     except Exception:
         pass
+    #print("evaluated [["+cmd+"]] = " + repr(res))
     return res
 
 
