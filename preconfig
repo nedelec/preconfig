@@ -72,6 +72,9 @@ __DATE__   ="24.06.2019"
 
    - if '--help' is specified, this documentation will be printed.
 
+   - if no_expand=ARRAY_NAME is specified, then the preconfig array ARRAY_NAME
+   will not be expanded, allowing to work with arrays in the config file.
+
 # CODE SNIPPETS
 
    Any plain python code can be embedded in the file, and functions from the
@@ -157,17 +160,18 @@ __DATE__   ="24.06.2019"
 
    Command: `preconfig 256 TEMPLATE_FILE` to make 256 files.
 
-## Example 1
+## Example 8
 
    Generate all combinations with multiple values for 1 parameters,
-   not expanding another parameter on demand
+   not expanding another array on demand
 
     rate = [[ [1, 10, 100] ]]
-    speed = [[ [-1, 0, 1] ]]
+    [[ vector = [-1, 0, 1] ]]
+    position = [[vector]]
 
-   Command: `preconfig TEMPLATE_FILE no_expand=speed` with the appropriate file name.
+   Command: `preconfig TEMPLATE_FILE no_expand=vector` with the appropriate file name.
    In this case, Preconfig will generate 3 files (for each value of rate),
-   not generating additional files for speed
+   not generating additional files for vector (which is a single 3x1 array)
 
 
 ## Acknowledgments:
