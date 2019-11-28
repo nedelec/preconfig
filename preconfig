@@ -3,7 +3,7 @@
 # PRECONFIG, a versatile configuration file generator
 #
 # Copyright Francois J. Nedelec, EMBL 2010--2017, Cambridge University 2019--
-# This is PRECONFIG version 1.1.0, last modified on 28.11.2019
+# This is PRECONFIG version 1.1.1, last modified on 28.11.2019
 
 """
 # SYNOPSIS
@@ -163,6 +163,17 @@
         position = [[vector]]
     }
 
+## Example 9
+
+    Cartesian sampling with filtering:
+
+    [[ (x,y) = [ (x,y) for x in range(10) for y in range(10) if x > y ] ]]
+
+    new particle
+    {
+        position = [[x]] [[y]]
+    }
+
 ## Acknowledgments:
 
 We wish to thank the members of the Nedelec group, and all users of 
@@ -286,7 +297,7 @@ def try_assignment(cmd):
         and if that succeeds, return the key and value strings in a tuple.
     """
     try:
-        k, v = cmd.split("=")
+        k, v = cmd.split('=',1)
         if k and v:
             k = k.strip()
             v = v.strip()
@@ -388,7 +399,7 @@ def process(file, locals, text):
                 # fork recursively for all subsequent values:
                 #print("forking", v)
                 if key:
-                    locals[key] = v
+                    exec(key+'='+repr(v), globals, locals)  #locals[key] = v
                     out.write("|%50s <-- %s\n" % (key, str(v)) )
                     process(file, locals, output)
                 else:
@@ -401,7 +412,7 @@ def process(file, locals, text):
         # handle remaining value:
         # print("handling", key, val)
         if key:
-            locals[key] = val
+            exec(key+'='+repr(val), globals, locals) #locals[key] = val
             out.write("|%50s <-- %s\n" % (key, str(val)) )
         else:
             output += str(val)
