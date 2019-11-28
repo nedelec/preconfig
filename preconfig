@@ -162,17 +162,14 @@ __DATE__   ="24.06.2019"
 
 ## Example 8
 
-   Generate all combinations with multiple values for 1 parameters,
-   not expanding another array on demand
+   Generate a set configuration files, not expanding certain vectors on demand
 
-    rate = [[ [1, 10, 100] ]]
-    [[ vector = [-1, 0, 1] ]]
+    [[ vector = [ [-1, 0, 1], [0 , 1 , 1] , [-1, 0, -1] ]]
     position = [[vector]]
 
    Command: `preconfig TEMPLATE_FILE no_expand=vector` with the appropriate file name.
-   In this case, Preconfig will generate 3 files (for each value of rate),
-   not generating additional files for vector (which is a single 3x1 array)
-
+   In this case, Preconfig will generate 3 files (for each vector).
+   Without this option, 9 files would have been generated.
 
 ## Acknowledgments:
 
