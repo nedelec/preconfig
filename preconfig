@@ -339,29 +339,6 @@ class Preconfig:
             else:
                 self.assignments.append(arg)
 
-
-    def main(self):
-        for arg in self.assignments:
-            (k,v) = try_assignment(arg)
-            if k:
-                self.locals[k] = self.evaluate(v)
-            else:
-                sys.stderr.write("  Error: unexpected argument `%s'\n" % arg)
-                sys.exit()
-
-        if not self.inputs:
-            sys.stderr.write("  Error: you must specify an input template file\n")
-            sys.exit()
-
-        for i in self.inputs:
-            #out.write("Reading %s\n" % i)
-            res = self.parse(i)
-            if self.verbose == 1:
-                #print("%i files generated from %s:" % (len(res), i))
-                for f in res:
-                    print(f)
-
-
     def evaluate(self, arg):
         """
             Evaluate `arg` and return result
@@ -383,8 +360,6 @@ class Preconfig:
             pass
         #print("evaluated `"+arg+"' = " + repr(res))
         return res
-
-    #-------------------------------------------------------------------------------
 
     def process(self, file, text):
         """
@@ -443,7 +418,6 @@ class Preconfig:
                 output += repr(val)
                 self.out.write("|%50s --> %s\n" % (block, str(val)) )
 
-
     def expand_values(self, file, text):
         """
             Call self recursively to remove all entries of the
@@ -462,7 +436,6 @@ class Preconfig:
         else:
             self.process(file, text)
 
-
     def parse(self, name):
         """
             process one file, and return the list of files generated
@@ -476,7 +449,6 @@ class Preconfig:
                 self.expand_values(f,'')
         return self.files_made
 
-
     def set_pattern(self, name):
         """
         Extract the root and the extension of the file
@@ -489,7 +461,6 @@ class Preconfig:
             self.pattern = os.path.join(self.destination, self.pattern)
         self.file_index = 0
 
-
     def next_file_name(self):
         """
         Generate the name of the next output file
@@ -497,7 +468,6 @@ class Preconfig:
         n = self.pattern % self.file_index
         self.file_index += 1
         return n
-
 
     def make_file(self, text):
         """
@@ -523,6 +493,25 @@ class Preconfig:
                 self.log.write(', %10s' % repr(self.values[k]))
             self.log.write('\n')
         self.values['n'] = self.file_index
+
+    def main(self):
+        for arg in self.assignments:
+            (k,v) = try_assignment(arg)
+            if k:
+                self.locals[k] = self.evaluate(v)
+            else:
+                sys.stderr.write("  Error: unexpected argument `%s'\n" % arg)
+                sys.exit()
+
+        if not self.inputs:
+            sys.stderr.write("  Error: you must specify an input template file\n")
+            sys.exit()
+
+        for i in self.inputs:
+            #out.write("Reading %s\n" % i)
+            res = self.parse(i)
+            if self.verbose == 1:
+                print("%i files generated: %s ... %s" % (len(res), res[0], res[-1]))
 
 
 #-------------------------------------------------------------------------------
