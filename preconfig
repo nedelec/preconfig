@@ -5,7 +5,7 @@
 # Copyright Francois J. Nedelec, EMBL 2010--2017, Cambridge University 2019--
 # This is PRECONFIG version 1.3, last modified on 20.01.2020
 
-__VERSION__="1.3"
+__VERSION__="1.23"
 
 __DATE__   ="30.01.2020"
 
@@ -48,7 +48,7 @@ __DATE__   ="30.01.2020"
 
 # SYNTAX
 
-   preconfig [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
+   preconfig [OPTIONS] [DEFINITIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
 
 # OPTIONS
 
@@ -58,11 +58,6 @@ __DATE__   ="30.01.2020"
 
    - if the path to an existing directory is specified, files will be created
    in this directory, for example: `preconfig dir config.cym.tpl`
-
-   - DEFINITIONS can be specified on the command line as 'name=value' or
-   'name=sequence', with no space around the '='. They are added to the
-   dictionary used to evaluate the code snippets found inside the template file,
-   for example: `preconfig rate=7.2 config.cym.tpl`
 
    - if a negative integer is specified, this will set the width of the integer
    that is used to build the file namess.
@@ -76,6 +71,16 @@ __DATE__   ="30.01.2020"
    line for each file created, containing the substitutions operated for this file.
 
    - if '--help' is specified, this documentation will be printed.
+   
+# DEFINITIONS
+
+   Variables can be specified on the command line as 'name=value' or
+   'name=sequence', with no space around the '='. They are added to the
+   dictionary used to evaluate the code snippets found inside the template file,
+   for example: `preconfig rate=7.2 config.cym.tpl`
+   
+   A variable can be defined using '==' to prevent it from being expanded, for
+   example `preconfig rate==[7.2,8,9.12] config.cym.tpl`
 
 # CODE SNIPPETS
 
@@ -258,7 +263,7 @@ def get_block(file, S, E):
     """
     Extract from `file` the next block starting with DOUBLE delimiters 'SS'
         and ending with matching 'EE'.
-    Returns a set with 3 values:
+    Returns 3 values:
         - the text found before the block start
         - the block with its delimiters
         - a boolean EOF indicator
@@ -395,7 +400,6 @@ class Preconfig:
         """
         Initialize variable to process template file 'name'
         """
-        self.locals['n'] = 0
         self.file_index = 0
         self.files_made = []
         self.template = name
@@ -440,33 +444,34 @@ class Preconfig:
                 self.log.write(', %10s' % repr(self.locals[k]))
             self.log.write('\n')
 
-    def expand_values(self, file, text):
+    def expand_values(self, values, file, text):
         """
             Call self recursively to remove all entries of the dictionary
             that are associated with multiple values.
         """
-        (key, vals) = pop_sequence(self.locals, self.protected)
+        (key, vals) = pop_sequence(values, self.protected)
         if key:
             ipos = file.tell()
             for v in vals:
-                self.locals[key] = v
+                values[key] = v
                 #self.out.write("|%50s <-- %s\n" % (key, str(v)) )
-                self.expand_values(file, text)
+                self.expand_values(values, file, text)
                 file.seek(ipos);
             # restore multiple values on upward recursion
-            self.locals[key] = vals
+            values[key] = vals
         else:
+            self.locals = values
+            self.locals['n'] = self.file_index
             self.process(file, text)
 
     def parse(self, name, values, repeat=1, path=''):
         """
             process one file, and return the list of files generated
         """
-        self.locals = values;
         self.set_template(name, path)
         for x in range(repeat):
             with open(name, 'r') as f:
-                self.expand_values(f, '')
+                self.expand_values(values, f, '')
         return self.files_made
 
     def main(self, args):
@@ -476,6 +481,7 @@ class Preconfig:
         verbose = 1
         repeat = 1
         inputs = []
+        values = {}
         path = ''
         
         for arg in args:
@@ -500,10 +506,10 @@ class Preconfig:
                 if k:
                     # a double '==' will prevent expansion of the variable
                     if v[0] == '=':
-                        self.locals[k] = v[1:]
+                        values[k] = v[1:]
                         self.protected.append(k)
                     else:
-                        self.locals[k] = self.evaluate(v)
+                        values[k] = self.evaluate(v)
                 else:
                     sys.stderr.write("  Error: unexpected argument `%s'\n" % arg)
                     sys.exit()
@@ -514,7 +520,7 @@ class Preconfig:
 
         for i in inputs:
             #out.write("Reading %s\n" % i)
-            res = self.parse(i, repeat, path)
+            res = self.parse(i, values, repeat, path)
             if verbose == 1:
                 if len(res) == 1:
                     print("generated %s" % res[0])
