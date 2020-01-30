@@ -349,9 +349,11 @@ class Preconfig:
         if key:
             exec(key+'='+repr(val), __GLOBALS__, self.locals)  #self.locals[key] = v
             self.out.write("|%50s <-- %s\n" % (key, str(val)) )
+            #print("%s <-- %s" % (key, str(val)) )
             return ''
         else:
             self.out.write("|%50s --> %s\n" % (block, str(val)) )
+            #print("%s --> %s" % (block, str(val)) )
             if isinstance(val, str):
                 return val
             return repr(val)
@@ -381,18 +383,22 @@ class Preconfig:
             # interpret command:
             (key, vals) = try_assignment(cmd)
             vals = self.evaluate(vals)
-            #print("    "+cmd+" <--- "+repr(vals))
-            try:
-                # use 'pop()' to test if multiple values were specified...
-                # put last value aside for later:
-                val = vals.pop()
-                ipos = file.tell()
-                for v in vals:
-                    self.process(file, output+self.operate(key, v, block))
-                    file.seek(ipos)
-            except (AttributeError, IndexError):
-                # a single value was specified:
+            if cmd in self.locals:
+                # a plain variable is not expanded again:
                 val = vals
+            else:
+                try:
+                    # use 'pop()' to test if multiple values were specified...
+                    # put last value aside for later:
+                    val = vals.pop()
+                    ipos = file.tell()
+                    for v in vals:
+                        #print("value("+cmd+")="+repr(v));
+                        self.process(file, output+self.operate(key, v, block))
+                        file.seek(ipos)
+                except (AttributeError, IndexError):
+                    # a single value was specified:
+                    val = vals
             # handle remaining value:
             output += self.operate(key, val, block)
 
