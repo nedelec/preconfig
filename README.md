@@ -62,7 +62,7 @@ For instance, to specify a width of 2, simply invoke "preconfig -2 ...".
    
    - if '--help' is specified, this documentation will be printed.
 
-# DEFINITIONS
+## Definitions
 
    Variables can be specified on the command line as 'name=value' or
    'name=sequence', with no space around the '='. They are added to the
