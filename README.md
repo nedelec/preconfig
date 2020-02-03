@@ -2,7 +2,12 @@
 
 # Overview
 
-Preconfig generates files from a template by evaluating doubly-bracketed Python code.
+Preconfig is a Python program used to generate multiple files from a single template,
+where variations of parameters are specified within doubly-bracketed Python code, for example:
+
+	rate = [[ [1, 10, 100] ]]
+
+Preconfig is Open Source and free to use and has no other dependency than Python itself.
 
 # Description
 
@@ -33,7 +38,7 @@ For instance, to specify a width of 2, simply invoke "preconfig -2 ...".
 
 # Syntax
 
-    preconfig [OPTIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
+    preconfig [OPTIONS] [DEFINITIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
 
 ## Options
 
@@ -43,12 +48,7 @@ For instance, to specify a width of 2, simply invoke "preconfig -2 ...".
    
    - if the path to an existing directory is specified, files will be created
    in this directory, for example: `preconfig dir config.cym.tpl`
-   
-   - DEFINITIONS can be specified on the command line as 'name=value' or 
-   'name=sequence', with no space around the '='. They are added to the 
-   dictionary used to evaluate the code snippets found inside the template file,
-   for example: `preconfig n_molecules=100 config.cym.tpl`
-   
+    
    - if a negative integer is specified, this will set the width of the integer
    that is used to build the file namess.
    For example: `preconfig -2 config.cym.tpl` will create 'config00.cym', etc.
@@ -62,13 +62,25 @@ For instance, to specify a width of 2, simply invoke "preconfig -2 ...".
    
    - if '--help' is specified, this documentation will be printed.
 
+# DEFINITIONS
+
+   Variables can be specified on the command line as 'name=value' or
+   'name=sequence', with no space around the '='. They are added to the
+   dictionary used to evaluate the code snippets found inside the template file,
+   for example: `preconfig rate=7.2 config.cym.tpl`
+   
+   A variable can be defined using '==' to prevent it from being expanded, for
+   example `preconfig rate==[7.2,8,9.12] config.cym.tpl`
+
 ## Code Snippets
 
-Any plain python code can be embedded in the file, and functions from the
-[Random Module](https://docs.python.org/library/random.html) can be used.
-It is possible to use multiple bracketed expressions in the same file, and
-to define variables in the python environment. An integer 'n', starting at
-zero and corresponding to the file being generated is automatically defined.
+   Any plain python code can be embedded in the file, and functions from the
+   [Random Module](https://docs.python.org/library/random.html) can be used.
+   It is possible to use multiple bracketed expressions in the same file, and
+   to define variables in the python environment. An integer 'n', starting at
+   zero and corresponding to the file being generated is automatically defined.
+   Note that variables defined in embedded code are not expanded when they appear
+   alone in another code (eg. [[vec]]).
 
 ### Example 1
 
@@ -159,6 +171,27 @@ To generate 256 files:
 
 `> preconfig 256 TEMPLATE_FILE`
 
+## Example 8
+
+   Quotations can be used to aggregate values:
+
+    [[ vec = ['-1 0 1', '0 1 1', '-1 0 -1'] ]]
+    new microtubule
+    {
+        position = [[vec]]
+    }
+
+## Example 9
+
+   Cartesian sampling with filtering:
+
+    [[ (x,y) = [ (x,y) for x in range(10) for y in range(10) if x>y ] ]]
+
+    new particle
+    {
+        position = [[x]] [[y]]
+    }
+
 
 # Tutorial
 
@@ -204,6 +237,5 @@ Preconfig is distributed under GPL3.0 Licence (see LICENSE)
 
 # Feedback
 
-Your feedback is very much appreciated, please send it to:
-feedback(xxx)cytosim.org
+Your feedback is very much appreciated, please write to `feedback(xxx)cytosim.org`
 
