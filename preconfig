@@ -5,10 +5,6 @@
 # Copyright Francois J. Nedelec, EMBL 2010--2017, Cambridge University 2019--2020
 # This is PRECONFIG version 1.4, last modified on 19.03.2020
 
-__VERSION__="1.4"
-
-__DATE__   ="19.03.2020"
-
 """
 # SYNOPSIS
 
@@ -204,12 +200,10 @@ for their feedback which has contributed greatly to this development.
 We thanks Shaun Jackman and Steven Andrews for valuable feedback!
 
 Copyright Francois J. Nedelec and Serge Dmitrieff
-EMBL 2010--2017
-Cambridge University 2019--
-This is Free Software with no WARANTY, hoping to be useful.
+EMBL 2010--2017; Cambridge University 2019--2020
+This is Free Software with no WARANTY, just hoping to be useful.
 Preconfig is distributed under GPL3.0 Licence (see LICENCE)
 """
-
 
 import sys
 
@@ -221,6 +215,10 @@ except ImportError:
     sys.exit()
 
 #-------------------------------------------------------------------------------
+
+__VERSION__="1.4"
+
+__DATE__   ="19.03.2020"
 
 # code snippets are surrounded by double square brackets:
 CODE = '['
