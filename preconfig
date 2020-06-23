@@ -464,7 +464,7 @@ class Preconfig:
                 for k in keys:
                     self.log.write(', %10s' % k)
                 self.log.write('\n')
-            self.log.write('%20s' % name)
+            self.log.write('%20s' % dst)
             for k in keys:
                 self.log.write(', %10s' % repr(self.locals[k]))
             self.log.write('\n')
