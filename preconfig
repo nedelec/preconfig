@@ -377,7 +377,7 @@ class Preconfig:
             # print("code block `%s'" % block)
             if code[0]==CODE and code[1]==CODE and code[-1]==DECO and code[-2]==DECO:
                 # any further level of bracketting is not evaluated:
-                pass
+                val = code
             elif code in self.locals:
                 # a defined variable is substituted but not expanded:
                 val = repr(self.locals[code])
