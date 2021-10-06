@@ -4,7 +4,7 @@
 #
 # Copyright Francois J. Nedelec and  Serge Dmitrieff, 
 # EMBL 2010--2017, Cambridge University 2019--2021
-# This is PRECONFIG version 1.43, last modified on 5.10.2021
+# This is PRECONFIG version 1.44, last modified on 6.10.2021
 
 """
 # SYNOPSIS
@@ -221,9 +221,9 @@ except ImportError:
 
 #-------------------------------------------------------------------------------
 
-__VERSION__="1.43"
+__VERSION__="1.44"
 
-__DATE__   ="5.10.2021"
+__DATE__ ="6.10.2021"
 
 # code snippets are surrounded by double square brackets:
 CODE = '['
@@ -307,6 +307,7 @@ def get_block(file, S, E):
 
 
 #-------------------------------------------------------------------------------
+
 class Preconfig:
     """ A class container for preconfig,
     contains inner variables and methods """
@@ -325,6 +326,8 @@ class Preconfig:
         self.file_index = 0
         # list of files generated
         self.files_made = []
+        # name of first output file (only one file can be made with this name)
+        self.file_name = ''
         # name of current input file being processed (used for error reporting)
         self.template = ''
     
@@ -429,15 +432,20 @@ class Preconfig:
         [main, ext] = os.path.basename(name).split('.', 1)
         ext, drop = os.path.splitext(ext)
         res = main + '%0' + repr(self.nb_digits) + 'i' + '.' + ext
-        if path:
+        if os.path.isdir(path):
             res = os.path.join(path, res)
+        elif path:
+            self.file_name = path
         self.pattern = res
 
     def next_file_name(self):
         """
         Generate the name of the next output file
         """
-        if self.pattern:
+        if self.file_name:
+            n = self.file_name
+            self.file_name = ''
+        elif self.pattern:
             n = self.pattern % self.file_index
         else:
             n = 'config%04i.txt' % self.file_index
@@ -530,6 +538,8 @@ class Preconfig:
             #print("preconfig argument `%s'" % arg)
             if os.path.isdir(arg):
                 path = arg
+            elif arg.startswith("path="):
+                path = arg[5:]
             elif os.path.isfile(arg):
                 inputs.append(arg)
             elif arg.isdigit():
@@ -578,12 +588,11 @@ class Preconfig:
 
 #-------------------------------------------------------------------------------
 
-def parse(name, values, repeat=1, dest=''):
+def parse(name, values, repeat=1, path=''):
     """
     Process one file, and return the list of files generated
     """
-    object=Preconfig()
-    return object.parse(name, values, repeat, dest)
+    return Preconfig().parse(name, values, repeat, path)
 
 
 if __name__ == "__main__":
