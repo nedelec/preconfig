@@ -36,6 +36,9 @@ Examples:
 The width of the variable part (default=4) can be changed on the command line.
 For instance, to specify a width of 2, simply invoke "preconfig -2 ...".
 
+The index of the file being generated is available as 'n'. By default,
+indexing starts at zero, but this can be changed by specifying 'n=INTEGER'.
+
 # Syntax
 
     preconfig [OPTIONS] [DEFINITIONS] TEMPLATE_FILE [ADDITIONAL_TEMPLATE_FILES]
