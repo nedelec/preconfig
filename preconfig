@@ -4,7 +4,7 @@
 #
 # Copyright Francois J. Nedelec and  Serge Dmitrieff, 
 # EMBL 2010--2017, Cambridge University 2019--2021
-# This is PRECONFIG version 1.47, last modified on 13.01.2022
+# This is PRECONFIG version 1.48, last modified on 20.01.2022
 
 """
 # SYNOPSIS
@@ -223,9 +223,9 @@ except ImportError:
 
 #-------------------------------------------------------------------------------
 
-__VERSION__="1.46"
+__VERSION__="1.48"
 
-__DATE__ ="16.12.2021"
+__DATE__ ="20.01.2022"
 
 # code snippets are surrounded by double square brackets:
 CODE = '['
@@ -244,13 +244,14 @@ def pop_sequence(dic, protected):
         Remove an entry in the dictionary that has multiple values
     """
     for k, v in dic.items():
-        try:
-            len(v)
-            if not k in protected:
-                dic.pop(k)
-                return (k, v)
-        except:
-            pass
+        if not isinstance(v, str):
+            try:
+                if len(v) > 1 and not k in protected:
+                    dic.pop(k)
+                    #print(" pop %s : %s" %(k, str(v)))
+                    return (k, v)
+            except:
+                pass
     return ('', [])
 
 
@@ -363,10 +364,11 @@ class Preconfig:
         try:
             res = self.evaluate(v)
         except NameError as e:
-            sys.stderr.write("\033[94m")
-            sys.stderr.write("Warning: %s in `%s': block kept verbatim" % (str(e), arg))
-            sys.stderr.write("\033[0m")
-            sys.stderr.write("\n")
+            if verbose > 1:
+                sys.stderr.write("\033[94m")
+                sys.stderr.write("Warning: block `%s' kept verbatim since %s" % (arg, str(e)))
+                sys.stderr.write("\033[0m")
+                sys.stderr.write("\n")
             #print(self.locals)
             return ('', blok)
         if verbose:
@@ -516,8 +518,8 @@ class Preconfig:
             dictionary that are associated with multiple values.
         """
         (key, vals) = pop_sequence(values, self.protected)
-        #print("expand"+repr(values)+" "+key)
         if key:
+            #print("cytosim:expand "+key+" = "+repr(vals))
             ipos = file.tell()
             for v in vals:
                 values[key] = v
@@ -543,8 +545,13 @@ class Preconfig:
         if not self.pattern:
             self.set_pattern(name, path)
         for x in range(repeat):
-            with open(name, 'r') as f:
+            try:
+                f = open(name, 'r')
                 self.expand(values, f, '')
+                f.close()
+            except:
+                sys.stderr.write("Error: Preconfig could not load `%s`\n"%name)
+                break
         return self.files_made
 
     def main(self, args):
@@ -585,6 +592,7 @@ class Preconfig:
                 self.out = sys.stderr
                 verbose = 0
             elif arg == '++' or arg == 'log':
+                verbose = 2
                 self.log = open('log.csv', 'w')
             elif arg[0] == '-' and arg[1:].isdigit():
                 self.nb_digits = int(arg[1:])
@@ -605,7 +613,7 @@ class Preconfig:
         for i in inputs:
             #out.write("Reading %s\n" % i)
             res = self.parse(i, values, repeat, path)
-            if verbose == 1:
+            if verbose > 0:
                 if len(res) == 1:
                     print("generated %s" % res[0])
                 else:
