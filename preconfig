@@ -3,8 +3,8 @@
 # PRECONFIG, a versatile configuration file generator for varying parameters
 #
 # Copyright Francois J. Nedelec and  Serge Dmitrieff, 
-# EMBL 2010--2017, Cambridge University 2019--2021
-# This is PRECONFIG version 1.48, last modified on 20.01.2022
+# EMBL 2010--2017, Cambridge University 2019--2022
+# This is PRECONFIG version 1.49, last modified on 27.01.2022
 
 """
 # SYNOPSIS
@@ -223,9 +223,9 @@ except ImportError:
 
 #-------------------------------------------------------------------------------
 
-__VERSION__="1.48"
+__VERSION__="1.49"
 
-__DATE__ ="20.01.2022"
+__DATE__ ="27.01.2022"
 
 # code snippets are surrounded by double square brackets:
 CODE = '['
@@ -549,7 +549,7 @@ class Preconfig:
                 f = open(name, 'r')
                 self.expand(values, f, '')
                 f.close()
-            except:
+            except IOError:
                 sys.stderr.write("Error: Preconfig could not load `%s`\n"%name)
                 break
         return self.files_made
