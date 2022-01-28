@@ -4,7 +4,7 @@
 #
 # Copyright Francois J. Nedelec and  Serge Dmitrieff, 
 # EMBL 2010--2017, Cambridge University 2019--2022
-# This is PRECONFIG version 1.49, last modified on 27.01.2022
+# This is PRECONFIG version 1.50, last modified on 28.01.2022
 
 """
 # SYNOPSIS
@@ -217,15 +217,15 @@ import sys
 try:
     import os, io, re
     GLOBALS = { 'random': __import__('random'), 'math': __import__('math') }
-except ImportError:
-    sys.stderr.write("Error: Preconfig could not load necessary python modules\n")
-    sys.exit()
+except ImportError as e:
+    sys.stderr.write("Preconfig could not load `%s`\n"%str(e))
+    sys.exit(7)
 
 #-------------------------------------------------------------------------------
 
-__VERSION__="1.49"
+__VERSION__="1.50"
 
-__DATE__ ="27.01.2022"
+__DATE__ ="28.01.2022"
 
 # code snippets are surrounded by double square brackets:
 CODE = '['
@@ -299,6 +299,7 @@ class Preconfig:
     """ A class container for preconfig,
     contains inner variables and methods """
     def __init__(self):
+        self.verbose = 2
         # local dictionary with index of file being generated
         self.locals = { 'n' : 0 }
         # variables for which expension is disabled:
@@ -317,21 +318,21 @@ class Preconfig:
         self.file_name = ''
         # name of current input file being processed (used for error reporting)
         self.template = ''
-    
+
     def evaluate(self, arg):
         """ Return evaluation of `arg', checking for syntax error"""
         try:
-            #print("preconfig:evaluate " + arg)
+            #print("Preconfig:evaluate " + arg)
             res = eval(arg, GLOBALS, self.locals)
         except NameError as e:
             #sys.stderr.write("NameError in `%s': %s\n" % (arg, str(e)))
             raise e
         except Exception as e:
             sys.stderr.write("\033[93m")
-            sys.stderr.write("Syntax Error in `%s': %s" % (arg, str(e)))
+            sys.stderr.write("Preconfig Syntax Error in `%s': %s" % (arg, str(e)))
             sys.stderr.write("\033[0m")
             sys.stderr.write("\n")
-            sys.exit()
+            sys.exit(2)
         if not isinstance(res, str):
             try:
                 res = list(res)
@@ -339,7 +340,7 @@ class Preconfig:
                 pass
         return res
     
-    def try_assignment(self, arg, blok, verbose=1):
+    def try_assignment(self, arg, blok):
         """
             Check if `arg` follows the format of a variable definition (X=RHS),
             and in that case return (key, self.evaluate(RHS)).
@@ -348,7 +349,7 @@ class Preconfig:
         """
         k = ''
         v = arg
-        #print("preconfig:try_assignment %s" % arg);
+        #print("Preconfig:try_assignment %s" % arg);
         res = re.match(r" *([a-zA-Z]\w*) *= *(.*)", arg)
         #print(res.groups())
         if res and len(res.groups()) > 1:
@@ -364,14 +365,15 @@ class Preconfig:
         try:
             res = self.evaluate(v)
         except NameError as e:
-            if verbose > 1:
-                sys.stderr.write("\033[94m")
-                sys.stderr.write("Warning: block `%s' kept verbatim since %s" % (arg, str(e)))
+            if self.verbose > 1:
+                sys.stderr.write("\033[1m\033[96m")
+                sys.stderr.write("Preconfig kept `%s' verbatim since %s" % (arg, str(e)))
                 sys.stderr.write("\033[0m")
                 sys.stderr.write("\n")
+            exit_code = 1
             #print(self.locals)
             return ('', blok)
-        if verbose:
+        if self.verbose:
             if k:
                 if v == str(res):
                     self.out.write("|%50s = %s\n" % (k, v) )
@@ -394,9 +396,9 @@ class Preconfig:
             output += pre
             if eof:
                 if blok:
-                    sys.stderr.write("Error: unclosed bracketted block in:\n");
+                    sys.stderr.write("Preconfig Error: unclosed bracketted block in:\n");
                     sys.stderr.write("    "+blok.split('\n', 1)[0]+'\n');
-                    sys.exit(1)
+                    sys.exit(2)
                 # having exhausted the input, we generate a file:
                 self.make_file(output)
                 return
@@ -550,7 +552,7 @@ class Preconfig:
                 self.expand(values, f, '')
                 f.close()
             except IOError:
-                sys.stderr.write("Error: Preconfig could not load `%s`\n"%name)
+                sys.stderr.write("Preconfig could not load `%s`\n"%name)
                 break
         return self.files_made
 
@@ -558,7 +560,6 @@ class Preconfig:
         """
             process arguments and perform corresponding task
         """
-        verbose = 1
         repeat = 1
         inputs = []
         values = {}
@@ -571,7 +572,7 @@ class Preconfig:
             args.pop(0)
         
         for arg in args:
-            #print("preconfig argument `%s'" % arg)
+            #print("Preconfig argument `%s'" % arg)
             if os.path.isdir(arg):
                 path = arg
             elif arg.startswith("path="):
@@ -587,12 +588,12 @@ class Preconfig:
                 CODE = '<'
                 DECO = '>'
             elif arg == '-':
-                verbose = 0
+                self.verbose = 0
             elif arg == '+':
                 self.out = sys.stderr
-                verbose = 0
+                self.verbose = 0
             elif arg == '++' or arg == 'log':
-                verbose = 2
+                self.verbose = 2
                 self.log = open('log.csv', 'w')
             elif arg[0] == '-' and arg[1:].isdigit():
                 self.nb_digits = int(arg[1:])
@@ -603,17 +604,17 @@ class Preconfig:
                         values[k] = v
                         continue
                 except:
-                    sys.stderr.write("  Error: unexpected argument `%s'\n" % arg)
-                    sys.exit()
+                    sys.stderr.write("Preconfig does not understand argument `%s'\n" % arg)
+                    sys.exit(4)
 
         if not inputs:
-            sys.stderr.write("  Error: you must specify an input template file\n")
-            sys.exit()
+            sys.stderr.write("Preconfig expects an input template file\n")
+            sys.exit(3)
 
         for i in inputs:
             #out.write("Reading %s\n" % i)
             res = self.parse(i, values, repeat, path)
-            if verbose > 0:
+            if self.verbose > 0:
                 if len(res) == 1:
                     print("generated %s" % res[0])
                 else:
