@@ -599,7 +599,7 @@ class Preconfig:
                 self.nb_digits = int(arg[1:])
             else:
                 try:
-                    k, v = self.try_assignment(arg, arg, 0)
+                    k, v = self.try_assignment(arg, 0)
                     if k:
                         values[k] = v
                         continue
