@@ -4,7 +4,7 @@
 #
 # Copyright Francois J. Nedelec and  Serge Dmitrieff, 
 # EMBL 2010--2017, Cambridge University 2019--2022
-# This is PRECONFIG version 1.50, last modified on 28.01.2022
+# This is PRECONFIG version 1.51, last modified on 18.03.2022
 
 """
 # SYNOPSIS
@@ -296,8 +296,7 @@ def get_block(file, S, E):
 #-------------------------------------------------------------------------------
 
 class Preconfig:
-    """ A class container for preconfig,
-    contains inner variables and methods """
+    """ A class container for preconfig """
     def __init__(self):
         self.verbose = 2
         # local dictionary with index of file being generated
@@ -429,13 +428,13 @@ class Preconfig:
                             self.out.write("|%50s <-- %s\n" % (key, repr(v)) )
                             self.process(file, output)
                         else:
-                            self.out.write("|%50s --> %s\n" % (vals, repr(v)) )
+                            self.out.write("|%50s --> %s\n" % (code, repr(v)) )
                             self.process(file, output+str(v))
                         file.seek(ipos)
                     if key:
                         self.out.write("|%50s <-- %s\n" % (key, repr(val)) )
                     else:
-                        self.out.write("|%50s --> %s\n" % (vals, repr(v)) )
+                        self.out.write("|%50s --> %s\n" % (code, repr(val)) )
                 except (AttributeError, IndexError):
                     # a single value was specified:
                     val = vals
