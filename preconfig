@@ -4,7 +4,7 @@
 #
 # Copyright Francois J. Nedelec and  Serge Dmitrieff, 
 # EMBL 2010--2017, Cambridge University 2019--2022
-# This is PRECONFIG version 1.51, last modified on 18.03.2022
+# This is PRECONFIG version 1.52, last modified on 19.03.2022
 
 """
 # SYNOPSIS
@@ -339,7 +339,13 @@ class Preconfig:
                 pass
         return res
     
-    def try_assignment(self, arg, blok):
+    def report(self, code, key, val):
+        if key:
+            self.out.write("|%50s <-- %s\n" % (key, repr(val)) )
+        else:
+            self.out.write("|%50s --> %s\n" % (code, repr(val)) )
+    
+    def try_assignment(self, code, blok):
         """
             Check if `arg` follows the format of a variable definition (X=RHS),
             and in that case return (key, self.evaluate(RHS)).
@@ -347,9 +353,9 @@ class Preconfig:
             If `arg` is not an assignment, return ('', self.evaluate(arg))
         """
         k = ''
-        v = arg
-        #print("Preconfig:try_assignment %s" % arg);
-        res = re.match(r" *([a-zA-Z]\w*) *= *(.*)", arg)
+        v = code
+        #print("Preconfig:try_assignment %s" % code);
+        res = re.match(r" *([a-zA-Z]\w*) *= *(.*)", code)
         #print(res.groups())
         if res and len(res.groups()) > 1:
             k = res.group(1)
@@ -366,20 +372,14 @@ class Preconfig:
         except NameError as e:
             if self.verbose > 1:
                 sys.stderr.write("\033[1m\033[96m")
-                sys.stderr.write("Preconfig kept `%s' verbatim since %s" % (arg, str(e)))
+                sys.stderr.write("Preconfig kept `%s' verbatim since %s" % (code, str(e)))
                 sys.stderr.write("\033[0m")
                 sys.stderr.write("\n")
             exit_code = 1
             #print(self.locals)
+            self.report(blok, '', blok)
             return ('', blok)
-        if self.verbose:
-            if k:
-                if v == str(res):
-                    self.out.write("|%50s = %s\n" % (k, v) )
-                else:
-                    self.out.write("|%50s = %s <-- %s\n" % (k, str(res), v) )
-            else:
-                self.out.write("|%50s --> %s\n" % (arg, str(res)) )
+        self.report(code, k, v)
         return (k, res)
     
     def process(self, file, text):
@@ -423,18 +423,14 @@ class Preconfig:
                     val = vals.pop()
                     ipos = file.tell()
                     for v in vals:
+                        self.report(code, key, v)
                         if key:
                             self.locals[key] = v
-                            self.out.write("|%50s <-- %s\n" % (key, repr(v)) )
                             self.process(file, output)
                         else:
-                            self.out.write("|%50s --> %s\n" % (code, repr(v)) )
                             self.process(file, output+str(v))
                         file.seek(ipos)
-                    if key:
-                        self.out.write("|%50s <-- %s\n" % (key, repr(val)) )
-                    else:
-                        self.out.write("|%50s --> %s\n" % (code, repr(val)) )
+                    self.report(code, key, val)
                 except (AttributeError, IndexError):
                     # a single value was specified:
                     val = vals
@@ -524,7 +520,7 @@ class Preconfig:
             ipos = file.tell()
             for v in vals:
                 values[key] = v
-                self.out.write("|%50s <-- %s\n" % (key, str(v)) )
+                self.report('', key, v)
                 #print("|%50s <-- %s\n" % (key, str(v)) )
                 self.expand(values, file, text)
                 file.seek(ipos);
