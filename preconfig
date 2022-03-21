@@ -4,7 +4,7 @@
 #
 # Copyright Francois J. Nedelec and  Serge Dmitrieff, 
 # EMBL 2010--2017, Cambridge University 2019--2022
-# This is PRECONFIG version 1.52, last modified on 19.03.2022
+# This is PRECONFIG version 1.53, last modified on 21.03.2022
 
 """
 # SYNOPSIS
@@ -239,6 +239,15 @@ def version():
 
 #-------------------------------------------------------------------------------
 
+def cannonical_pattern(arg):
+    """check for repeated '%' character, replacing printf syntax: %04i """
+    c = arg.count('%')
+    for n in range(c,0,-1):
+        if arg.find('%'*n) > 0:
+            return arg.replace('%'*n, '%0'+str(n)+'i', 1);
+    return arg
+
+
 def pop_sequence(dic, protected):
     """
         Remove an entry in the dictionary that has multiple values
@@ -317,6 +326,29 @@ class Preconfig:
         self.file_name = ''
         # name of current input file being processed (used for error reporting)
         self.template = ''
+    
+    def write_log(self, name):
+        """ record some info in the log """
+        keys = sorted(self.locals.keys())
+        # write column headers
+        if self.log_doc:
+            self.log.write('%20s' % 'file')
+            for k in keys:
+                self.log.write(', %10s' % k)
+            self.log.write('\n')
+            self.log_doc = 0
+        # write a line of data:
+        self.log.write('%20s' % name)
+        for k in keys:
+            self.log.write(', %10s' % repr(self.locals[k]))
+        self.log.write('\n')
+
+    def report(self, code, key, val):
+        """ print some info to output """
+        if key:
+            self.out.write("|%50s <-- %s\n" % (key, repr(val)) )
+        else:
+            self.out.write("|%50s --> %s\n" % (code, repr(val)) )
 
     def evaluate(self, arg):
         """ Return evaluation of `arg', checking for syntax error"""
@@ -338,12 +370,6 @@ class Preconfig:
             except Exception:
                 pass
         return res
-    
-    def report(self, code, key, val):
-        if key:
-            self.out.write("|%50s <-- %s\n" % (key, repr(val)) )
-        else:
-            self.out.write("|%50s --> %s\n" % (code, repr(val)) )
     
     def try_assignment(self, code, blok):
         """
@@ -475,19 +501,6 @@ class Preconfig:
             n = 'config%04i.txt' % self.locals['n']
         return n
 
-    def write_log(self, log, name):
-        keys = sorted(self.locals.keys())
-        if self.log_doc:
-            log.write('%20s' % 'file')
-            for k in keys:
-                log.write(', %10s' % k)
-            log.write('\n')
-            self.log_doc = 0
-        log.write('%20s' % name)
-        for k in keys:
-            log.write(', %10s' % repr(self.locals[k]))
-        log.write('\n')
-
     def make_file(self, text):
         """
         Create a file with the specified text
@@ -505,7 +518,7 @@ class Preconfig:
         self.out.write('  \\'+('> '+dst+'\n').rjust(96, '-'))
         # write log:
         if self.log:
-            self.write_log(self.log, dst)
+            self.write_log(dst)
         # get ready for next file:
         self.locals['n'] += 1
 
@@ -563,7 +576,7 @@ class Preconfig:
         # first argument may define the pattern:
         arg = args[0]
         if arg.find('%') >= 0 and not os.path.isfile(arg):
-            self.pattern = arg
+            self.pattern = cannonical_pattern(arg)
             args.pop(0)
         
         for arg in args:
