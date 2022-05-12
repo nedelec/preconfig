@@ -4,7 +4,7 @@
 #
 # Copyright Francois J. Nedelec and  Serge Dmitrieff, 
 # EMBL 2010--2017, Cambridge University 2019--2022
-# This is PRECONFIG version 1.54, last modified on 21.03.2022
+# This is PRECONFIG version 1.56, last modified on 12.05.2022
 
 """
 # SYNOPSIS
@@ -62,6 +62,9 @@
 
    - if the path to an existing directory is specified, files will be created
    in this directory, for example: `preconfig dir config.cym.tpl`
+   
+   - if 'out=FILENAME' is specified, Preconfig will use this name for the first
+   file that it generates. If this file already exists, it will be overwritten.
 
    - if a negative integer is specified, this will set the width of the integer
    that is used to build the file namess.
@@ -207,7 +210,7 @@ for their feedback which has contributed greatly to this development.
 We thanks Shaun Jackman and Steven Andrews for valuable feedback!
 
 Copyright Francois J. Nedelec and Serge Dmitrieff
-EMBL 2010--2017; Cambridge University 2019--2020
+EMBL 2010--2017; Cambridge University 2019--2022
 This is Free Software with no WARANTY, just hoping to be useful.
 Preconfig is distributed under GPL3.0 Licence (see LICENCE)
 """
@@ -215,7 +218,7 @@ Preconfig is distributed under GPL3.0 Licence (see LICENCE)
 import sys
 
 try:
-    import os, io, re
+    import os, io, re, time
     GLOBALS = { 'random': __import__('random'), 'math': __import__('math') }
 except ImportError as e:
     sys.stderr.write("Preconfig could not load `%s`\n"%str(e))
@@ -380,9 +383,8 @@ class Preconfig:
         """
         k = ''
         v = code
-        #print("Preconfig:try_assignment %s" % code);
         res = re.match(r" *([a-zA-Z]\w*) *= *(.*)", code)
-        #print(res.groups())
+        #print(" preconfig:try_assignment(%s): %s" % (code, res.groups()));
         if res and len(res.groups()) > 1:
             k = res.group(1)
             v = res.group(2).strip()
@@ -485,8 +487,6 @@ class Preconfig:
         self.pattern = main + '%0' + repr(self.nb_digits) + 'i' + ext
         if os.path.isdir(path):
             self.pattern = os.path.join(path, self.pattern)
-        elif path:
-            self.file_name = path
 
     def next_file_name(self):
         """
@@ -554,6 +554,8 @@ class Preconfig:
         self.set_template(name)
         if not self.pattern:
             self.set_pattern(name, path)
+        if not os.path.isdir(path):
+            self.file_name = path
         for x in range(repeat):
             try:
                 f = open(name, 'r')
@@ -573,16 +575,13 @@ class Preconfig:
         values = {}
         path = ''
         
-        # first argument may define the pattern:
-        arg = args[0]
-        if arg.find('%') >= 0 and not os.path.isfile(arg):
-            self.pattern = cannonical_pattern(arg)
-            args.pop(0)
-        
+        # parse arguments:
         for arg in args:
             #print("Preconfig argument `%s'" % arg)
             if os.path.isdir(arg):
                 path = arg
+            elif arg.startswith("out="):
+                path = arg[4:]
             elif arg.startswith("path="):
                 path = arg[5:]
             elif os.path.isfile(arg):
@@ -603,17 +602,19 @@ class Preconfig:
             elif arg == '++' or arg == 'log':
                 self.verbose = 2
                 self.log = open('log.csv', 'w')
-            elif arg[0] == '-' and arg[1:].isdigit():
+            elif arg.startswith('-') and arg[1:].isdigit():
                 self.nb_digits = int(arg[1:])
-            else:
-                try:
-                    k, v = self.try_assignment(arg, 0)
-                    if k:
-                        values[k] = v
-                        continue
-                except:
-                    sys.stderr.write("Preconfig does not understand argument `%s'\n" % arg)
-                    sys.exit(4)
+            elif arg.find('=', 1) > 0:
+                k, v = self.try_assignment(arg, 0)
+                values[k] = v
+            elif arg:
+                sys.stderr.write("Preconfig does not understand argument `%s'\n" % arg)
+                sys.exit(4)
+        
+        # path argument may define the pattern:
+        if path.find('%') >= 0 and not os.path.isfile(path):
+            self.pattern = cannonical_pattern(path)
+            path = ''
 
         if not inputs:
             sys.stderr.write("Preconfig expects an input template file\n")
@@ -645,6 +646,14 @@ if __name__ == "__main__":
         print(__doc__)
     elif sys.argv[1]=='--version':
         print("This is PRECONFIG version %s (%s)" %(__VERSION__,__DATE__))
+    elif sys.argv[1]=='--pipe':
+        object=Preconfig()
+        while 1:
+            time.sleep(0.1)
+            line = sys.stdin.readline()[:-1]
+            if line:
+                args = line.split(' ')
+                object.main(args)
     else:
         object=Preconfig()
         object.main(sys.argv[1:])
