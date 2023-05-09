@@ -1,10 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # PRECONFIG, a versatile configuration file generator for varying parameters
 #
 # Copyright Francois J. Nedelec and  Serge Dmitrieff, 
 # EMBL 2010--2017, Cambridge University 2019--2022
-# This is PRECONFIG version 1.57, last modified on 15.06.2022
+# This is PRECONFIG version 1.59, last modified on 03.02.2023
 
 """
 # SYNOPSIS
@@ -175,12 +175,12 @@
    of 'x' can be read. This can be useful to process the results later.
 
     [[ x = random.uniform(0,1) ]]
-    %preconfig.x= [[ x ]]
+    %config.x= [[ x ]]
     binding_rate = [[ 10*x ]]
     unbinding_rate = [[ 2*x ]]
 
    Command: `preconfig 256 TEMPLATE_FILE` to make 256 files.
-   Extract values:  awk '/%preconfig./{sub("%preconfig.","");print}' config0000.cym
+   To get values: awk '/%config./{sub("%config.","");print}' config0000.cym
 
 ## Example 8
 
@@ -226,9 +226,9 @@ except ImportError as e:
 
 #-------------------------------------------------------------------------------
 
-__VERSION__="1.57"
+__VERSION__="1.58"
 
-__DATE__ ="15.06.2022"
+__DATE__ ="29.09.2022"
 
 # code snippets are surrounded by double square brackets:
 CODE = '['
@@ -407,7 +407,7 @@ class Preconfig:
             #print(self.locals)
             self.report(blok, '', blok)
             return ('', blok)
-        self.report(code, k, v)
+        self.report(code, k, res)
         return (k, res)
     
     def process(self, file, text):
@@ -433,7 +433,6 @@ class Preconfig:
             key = ''
             code = blok[2:-2].strip()
             # print("%4i characters... " % len(pre), end='')
-            # print("code block `%s'" % blok)
             if code[0]==CODE and code[1]==CODE and code[-1]==DECO and code[-2]==DECO:
                 # any further level of bracketting is not evaluated:
                 val = code
@@ -443,6 +442,7 @@ class Preconfig:
             else:
                 # check the code for assigment, and evaluate code:
                 key, vals = self.try_assignment(code, blok)
+                # print("code block `%s' -> %s" % (blok, vals))
                 if key:
                     self.locals[key] = vals
                 try:
@@ -522,6 +522,11 @@ class Preconfig:
         # get ready for next file:
         self.locals['n'] += 1
 
+    def clear_locals(self):
+        n = self.locals['n']
+        self.locals.clear()
+        self.locals['n'] = n
+
     def expand(self, values, file, text):
         """
             Calls itself recursively to remove all entries of the `values`
@@ -547,7 +552,7 @@ class Preconfig:
             values.pop('n', 0)
             self.process(file, text)
 
-    def parse(self, name, values, repeat=1, path=''):
+    def parse(self, name, file, values, repeat=1, path=''):
         """
             process one file, and return the list of files generated
         """
@@ -558,12 +563,12 @@ class Preconfig:
             self.file_name = path
         for x in range(repeat):
             try:
-                f = open(name, 'r')
-                self.expand(values, f, '')
-                f.close()
+                self.expand(values, file, '')
             except IOError:
                 sys.stderr.write("Preconfig could not load `%s`\n"%name)
                 break
+            self.clear_locals()
+            file.seek(0)
         return self.files_made
 
     def main(self, args):
@@ -627,7 +632,8 @@ class Preconfig:
 
         for i in inputs:
             #out.write("Reading %s\n" % i)
-            res = self.parse(i, values, repeat, path)
+            with open(i, 'r') as f:
+                res = self.parse(i, f, values, repeat, path)
             if self.verbose > 0:
                 if len(res) == 1:
                     print("generated %s" % res[0])
@@ -641,7 +647,12 @@ def parse(name, values, repeat=1, path=''):
     """
     Process one file, and return the list of files generated
     """
-    return Preconfig().parse(name, values, repeat, path)
+    try:
+        with open(name, 'r') as file:
+            return Preconfig().parse(name, file, values, repeat, path)
+    except FileNotFoundError:
+        print("No such file `%s`" % name)
+    return []
 
 
 if __name__ == "__main__":
