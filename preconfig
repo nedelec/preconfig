@@ -4,7 +4,7 @@
 #
 # Copyright Francois J. Nedelec and  Serge Dmitrieff, 
 # EMBL 2010--2017, Cambridge University 2019--2022
-# This is PRECONFIG version 1.59, last modified on 03.02.2023
+# This is PRECONFIG version 1.60, last modified on 11.11.2024
 
 """
 # SYNOPSIS
@@ -170,20 +170,6 @@
 
 ## Example 7
 
-   Randomize a value, and print this value as a comment in the file.
-   The second line below the [[...]] prints a comment, from which the value
-   of 'x' can be read. This can be useful to process the results later.
-
-    [[ x = random.uniform(0,1) ]]
-    %config.x= [[ x ]]
-    binding_rate = [[ 10*x ]]
-    unbinding_rate = [[ 2*x ]]
-
-   Command: `preconfig 256 TEMPLATE_FILE` to make 256 files.
-   To get values: awk '/%config./{sub("%config.","");print}' config0000.cym
-
-## Example 8
-
    Quotations can be used to aggregate values:
 
     [[ vec = ['-1 0 1', '0 1 1', '-1 0 -1'] ]]
@@ -192,7 +178,7 @@
         position = [[vec]]
     }
 
-## Example 9
+## Example 8
 
    Cartesian sampling with filtering:
 
@@ -202,6 +188,23 @@
     {
         position = [[x]] [[y]]
     }
+
+## Keeping track of values and extracting them later
+
+    It is often useful to add comments in the ouput file to help recover the
+    values used by Preconfig. This is easily done as follows:
+
+    [[ x = random.uniform(0,1) ]]%config.x = [[ x ]]
+    
+    unbinding_rate = [[ x ]]
+    %config.unbinding_rate = [[ 2*x ]]
+    ...
+ 
+    One can recover the lines containing 'config.' with `grep` or `awk`:
+        grep '^%config.' config0000.cym
+        awk '/%config./{sub("%config.","");print}' config0000.cym
+    The same technique can be adapted using a dictionaryto Python:
+        ...
 
 ## Acknowledgments:
 
@@ -383,11 +386,11 @@ class Preconfig:
         """
         k = ''
         v = code
-        res = re.match(r" *([a-zA-Z]\w*) *= *(.*)", code)
+        rem = re.match(r" *([a-zA-Z]\w*) *= *(.*)", code)
         #print(" preconfig:try_assignment(%s): %s" % (code, res.groups()))
-        if res and len(res.groups()) > 1:
-            k = res.group(1)
-            v = res.group(2).strip()
+        if rem and len(rem.groups()) > 1:
+            k = rem.group(1)
+            v = rem.group(2).strip()
             if v[0] == '=':
                 # with '==' use raw right-hand side 
                 v = v[1:]
