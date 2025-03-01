@@ -3,8 +3,8 @@
 # PRECONFIG, a versatile configuration file generator for varying parameters
 #
 # Copyright Francois J. Nedelec and  Serge Dmitrieff, 
-# EMBL 2010--2017, Cambridge University 2019--2024
-# This is PRECONFIG version 1.7, last modified on 15.12.2024
+# EMBL 2010--2017, Cambridge University 2019--2025
+# This is PRECONFIG version 1.7, last modified on 1.3.2025
 
 """
 # SYNOPSIS
@@ -214,7 +214,7 @@ for their feedback which has contributed greatly to this development.
 We thanks Shaun Jackman and Steven Andrews for valuable feedback!
 
 Copyright Francois J. Nedelec and Serge Dmitrieff
-EMBL 2010--2017; Cambridge University 2019--2022
+EMBL 2010--2017; Cambridge University 2019--2024
 This is Free Software with no WARANTY, just hoping to be useful.
 Preconfig is distributed under GPL3.0 Licence (see LICENCE)
 """
@@ -230,9 +230,9 @@ except ImportError as e:
 
 #-------------------------------------------------------------------------------
 
-__VERSION__="1.58"
+__VERSION__="1.7"
 
-__DATE__ ="29.09.2022"
+__DATE__ ="1.03.2025"
 
 # code snippets are surrounded by double square brackets:
 CODE = '['
@@ -431,9 +431,14 @@ class Preconfig:
         output = text
         while file:
             (before, blok, eof) = get_double_block(file, CODE, DECO)
+            # if ]]\ was used at the end of a line, we skip the newline.
+            if len(before) > 1 and before[0:2] == '\\\n':
+                output += before[2:]
+            else:
+                output += before
             if eof:
                 break;
-            #print("%i characters +  '%s'" % (len(pre), blok))
+            # print("%i characters + '%s'" % (len(before), blok))
             # remove outer brackets:
             code = blok[2:-2].strip()
             key = ''
@@ -450,7 +455,7 @@ class Preconfig:
                 key, vals = self.try_assignment(code)
                 if not key:
                     vals = self.evaluate_code(code, blok)
-                # print("code block `%s' -> %s" % (blok, vals))
+                    #print("evaluated `%s' ---> %s" % (code, vals))
                 if key:
                     self.locals[key] = vals
                 try:
@@ -470,19 +475,13 @@ class Preconfig:
                 except (AttributeError, IndexError):
                     # a single value was specified:
                     val = vals
-            # print(f"{len(before)}...|{code}| --> |{val}|")
+            #print(f"{len(before)}...|{code}| --> |{val}|")
             # update text or local variables:
-            # if ]]\ was used at the end of a line, we skip the newline.
-            if len(before) > 1 and before[0:2] == '\\\n':
-                output += before[2:]
-            else:
-                output += before
             if key:
                 self.locals[key] = val
             elif str(val):
                 output += str(val)
         # having exhausted the input, we generate a file:
-        output += before
         if blok:
             sys.stderr.write(f"Preconfig Error: unclosed bracketted block in `{file.name}`,\n")
             sys.stderr.write("below line %i:\n"%output.count('\n'))
